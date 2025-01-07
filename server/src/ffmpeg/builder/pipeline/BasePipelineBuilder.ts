@@ -1,9 +1,14 @@
-import { AudioStream, VideoStream } from '@/ffmpeg/builder/MediaStream.ts';
+import {
+  AudioStream,
+  SubtitleStream,
+  VideoStream,
+} from '@/ffmpeg/builder/MediaStream.ts';
 import { FfmpegCapabilities } from '@/ffmpeg/builder/capabilities/FfmpegCapabilities.ts';
 import { Decoder } from '@/ffmpeg/builder/decoder/Decoder.ts';
 import { DecoderFactory } from '@/ffmpeg/builder/decoder/DecoderFactory.ts';
 import {
   AudioEncoder,
+  SubtitleEncoder,
   VideoEncoder,
 } from '@/ffmpeg/builder/encoder/BaseEncoder.ts';
 import { Encoder } from '@/ffmpeg/builder/encoder/Encoder.ts';
@@ -31,6 +36,7 @@ import { UserAgentInputOption } from '@/ffmpeg/builder/options/input/UserAgentIn
 import { AudioState } from '@/ffmpeg/builder/state/AudioState.ts';
 import { FfmpegState } from '@/ffmpeg/builder/state/FfmpegState.ts';
 import { FrameState } from '@/ffmpeg/builder/state/FrameState.ts';
+import { SubtitleState } from '@/ffmpeg/builder/state/SubtitleState.ts';
 import {
   FrameDataLocation,
   HardwareAccelerationMode,
@@ -101,6 +107,7 @@ import {
 } from '../options/OutputOption.ts';
 import { Pipeline } from './Pipeline.ts';
 import { PipelineBuilder } from './PipelineBuilder.ts';
+import { SubtitleInputSource } from '../input/SubtitleInputSource.ts';
 
 // Args passed to each setter -- we use an object here so we
 // 1. can deconstruct args in each implementor to use only what we need
@@ -124,9 +131,11 @@ export type PipelineAudioFunctionArgs = {
 export type PipelineBuilderContext = {
   videoStream?: VideoStream;
   audioStream?: AudioStream;
+  subtitleStream?: SubtitleStream;
   ffmpegState: FfmpegState;
   desiredState: FrameState;
   desiredAudioState?: AudioState;
+  desiredSubtitleState?: SubtitleState;
   pipelineSteps: PipelineStep[];
   filterChain: FilterChain;
   decoder: Nullable<Decoder>;
@@ -146,6 +155,10 @@ export type PipelineBuilderContextWithAudio = MarkRequired<
   PipelineBuilderContext,
   'audioStream' | 'desiredAudioState'
 >;
+export type PipelineBuilderContextWithSubtitles = MarkRequired<
+  PipelineBuilderContext,
+  'subtitleStream' | 'desiredSubtitleState'
+>;
 
 export function isVideoPipelineContext(
   context: PipelineBuilderContext,
@@ -161,6 +174,15 @@ export function isAudioPipelineContext(
   );
 }
 
+export function isSubtitlePipelineContext(
+  context: PipelineBuilderContext,
+): context is PipelineBuilderContextWithSubtitles {
+  return (
+    !isUndefined(context.subtitleStream) &&
+    !isUndefined(context.desiredSubtitleState)
+  );
+}
+
 export abstract class BasePipelineBuilder implements PipelineBuilder {
   protected logger: Logger = LoggerFactory.child({
     caller: import.meta,
@@ -172,6 +194,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
   constructor(
     protected nullableVideoInputSource: Nullable<VideoInputSource>,
     private audioInputSource: Nullable<AudioInputSource>,
+    private subtitleInputSource: Nullable<SubtitleInputSource>,
     protected watermarkInputSource: Nullable<WatermarkInputSource>,
     protected concatInputSource: Nullable<ConcatInputSource>,
     protected ffmpegCapabilities: FfmpegCapabilities,
@@ -230,6 +253,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(pipelineSteps, {
       videoInput: null,
       audioInput: null,
+      subtitleInput: null,
       concatInput: input,
       watermarkInput: null,
     });
@@ -270,6 +294,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(pipelineSteps, {
       videoInput: null,
       audioInput: null,
+      subtitleInput: null,
       concatInput: input,
       watermarkInput: null,
     });
@@ -279,6 +304,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     this.context = {
       videoStream: first(this.videoInputSource.streams),
       audioStream: first(this.audioInputSource?.streams),
+      subtitleStream: first(this.subtitleInputSource?.streams),
       ffmpegState,
       desiredState,
       desiredAudioState: this.audioInputSource?.desiredState,
@@ -420,6 +446,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
       new ComplexFilter(
         this.videoInputSource,
         this.audioInputSource,
+        this.subtitleInputSource,
         this.watermarkInputSource,
         this.context.filterChain,
       ),
@@ -432,6 +459,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(this.pipelineSteps, {
       videoInput: this.videoInputSource,
       audioInput: this.audioInputSource,
+      subtitleInput: this.subtitleInputSource,
       watermarkInput: this.watermarkInputSource,
       concatInput: this.concatInputSource,
     });
@@ -534,6 +562,16 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
         AudioPadFilter.create(this.context.desiredAudioState.audioDuration),
       );
     }
+  }
+
+  protected buildSubtitlePipeline() {
+    if (!isSubtitlePipelineContext(this.context)) {
+      return;
+    }
+    const encoder = new SubtitleEncoder(
+      this.context.desiredSubtitleState.subtitleEncoder,
+    );
+    this.pipelineSteps.push(encoder);
   }
 
   protected abstract setupVideoFilters(): void;

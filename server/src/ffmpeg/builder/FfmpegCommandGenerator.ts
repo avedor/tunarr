@@ -6,6 +6,7 @@ import { BaseEncoder } from './encoder/BaseEncoder.ts';
 import { ComplexFilter } from './filter/ComplexFilter.ts';
 import { AudioInputSource } from './input/AudioInputSource.ts';
 import { ConcatInputSource } from './input/ConcatInputSource.ts';
+import { SubtitleInputSource } from './input/SubtitleInputSource.ts';
 import { VideoInputSource } from './input/VideoInputSource.ts';
 import { WatermarkInputSource } from './input/WatermarkInputSource.ts';
 import {
@@ -32,6 +33,7 @@ export class FfmpegCommandGenerator {
   generateArgs(
     videoInputSource: Nullable<VideoInputSource>,
     audioInputSource: Nullable<AudioInputSource>,
+    subtitleInputSource: Nullable<SubtitleInputSource>,
     watermarkInputSource: Nullable<WatermarkInputSource>,
     concatInputSource: Nullable<ConcatInputSource>,
     steps: PipelineStep[],
@@ -57,6 +59,15 @@ export class FfmpegCommandGenerator {
         ...audioInputSource.getInputOptions(),
         '-i',
         audioInputSource.path,
+      );
+    }
+
+    if (subtitleInputSource && !includedPaths.has(subtitleInputSource.path)) {
+      includedPaths.add(subtitleInputSource.path);
+      args.push(
+        ...subtitleInputSource.getInputOptions(),
+        '-i',
+        subtitleInputSource.path,
       );
     }
 

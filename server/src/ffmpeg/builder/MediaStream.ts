@@ -22,6 +22,7 @@ type MediaStreamFields<T extends MediaStream> = Omit<
 // semantics with class construction, but still enabling us
 // to have hierarchies, methods, etc.
 type AudioStreamFields = MediaStreamFields<AudioStream>;
+type SubtitleStreamFields = MediaStreamFields<SubtitleStream>;
 type VideoStreamFields = Omit<MediaStreamFields<VideoStream>, 'isAnamorphic'>;
 
 export class AudioStream implements MediaStream {
@@ -38,6 +39,23 @@ export class AudioStream implements MediaStream {
 
   static create(fields: AudioStreamFields) {
     return new AudioStream(fields);
+  }
+}
+
+export class SubtitleStream implements MediaStream {
+  readonly kind: StreamKind = 'subtitle';
+  index: number;
+  codec: string;
+  language?: string;
+
+  private constructor(fields: SubtitleStreamFields) {
+    this.index = fields.index;
+    this.codec = fields.codec;
+    this.language = fields.language;
+  }
+
+  static create(fields: SubtitleStreamFields) {
+    return new SubtitleStream(fields);
   }
 }
 

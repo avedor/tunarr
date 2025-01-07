@@ -16,6 +16,7 @@ import { QsvPipelineBuilder } from './hardware/QsvPipelineBuilder.ts';
 import { VaapiPipelineBuilder } from './hardware/VaapiPipelineBuilder.ts';
 import { VideoToolboxPipelineBuilder } from './hardware/VideoToolboxPipelineBuilder.ts';
 import { SoftwarePipelineBuilder } from './software/SoftwarePipelineBuilder.ts';
+import { SubtitleInputSource } from '../input/SubtitleInputSource.ts';
 
 export class PipelineBuilderFactory {
   constructor(private settingsDB: SettingsDB = getSettings()) {}
@@ -31,6 +32,7 @@ export class PipelineBuilderFactory {
 class PipelineBuilderFactory$Builder {
   private videoInputSource: Nullable<VideoInputSource> = null;
   private audioInputSource: Nullable<AudioInputSource> = null;
+  private subtitleInputSource: Nullable<SubtitleInputSource> = null;
   private concatInputSource: Nullable<ConcatInputSource> = null;
   private watermarkInputSource: Nullable<WatermarkInputSource> = null;
   private hardwareAccelerationMode: HardwareAccelerationMode = 'none';
@@ -51,6 +53,13 @@ class PipelineBuilderFactory$Builder {
     audioInputSource: Nullable<AudioInputSource>,
   ): PipelineBuilderFactory$Builder {
     this.audioInputSource = audioInputSource;
+    return this;
+  }
+
+  setSubtitleInputSource(
+    subtitleInputSource: Nullable<SubtitleInputSource>,
+  ): PipelineBuilderFactory$Builder {
+    this.subtitleInputSource = subtitleInputSource;
     return this;
   }
 
@@ -93,6 +102,7 @@ class PipelineBuilderFactory$Builder {
           binaryCapabilities,
           this.videoInputSource,
           this.audioInputSource,
+          this.subtitleInputSource,
           this.concatInputSource,
           this.watermarkInputSource,
         );
@@ -100,6 +110,7 @@ class PipelineBuilderFactory$Builder {
         return new QsvPipelineBuilder(
           this.videoInputSource,
           this.audioInputSource,
+          this.subtitleInputSource,
           this.watermarkInputSource,
           this.concatInputSource,
           binaryCapabilities,
@@ -110,6 +121,7 @@ class PipelineBuilderFactory$Builder {
           binaryCapabilities,
           this.videoInputSource,
           this.audioInputSource,
+          this.subtitleInputSource,
           this.watermarkInputSource,
           this.concatInputSource,
         );
@@ -119,6 +131,7 @@ class PipelineBuilderFactory$Builder {
           binaryCapabilities,
           this.videoInputSource,
           this.audioInputSource,
+          this.subtitleInputSource,
           this.concatInputSource,
           this.watermarkInputSource,
         );
@@ -126,6 +139,7 @@ class PipelineBuilderFactory$Builder {
         return new SoftwarePipelineBuilder(
           this.videoInputSource,
           this.audioInputSource,
+          this.subtitleInputSource,
           this.watermarkInputSource,
           this.concatInputSource,
           binaryCapabilities,

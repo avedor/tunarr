@@ -46,6 +46,12 @@ export class AudioEncoder extends BaseEncoder {
   }
 }
 
+export class SubtitleEncoder extends BaseEncoder {
+  constructor(encoder: string) {
+    super(encoder, 'subtitle');
+  }
+}
+
 export abstract class VideoEncoder extends BaseEncoder {
   protected abstract videoFormat: string;
 

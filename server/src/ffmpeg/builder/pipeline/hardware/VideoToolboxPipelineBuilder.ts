@@ -7,6 +7,7 @@ import { FilterOption } from '@/ffmpeg/builder/filter/FilterOption.ts';
 import { VideoToolboxHardwareAccelerationOption } from '@/ffmpeg/builder/filter/videotoolbox/VideoToolboxHardwareAccelerationOption.ts';
 import { AudioInputSource } from '@/ffmpeg/builder/input/AudioInputSource.ts';
 import { ConcatInputSource } from '@/ffmpeg/builder/input/ConcatInputSource.ts';
+import { SubtitleInputSource } from '../../input/SubtitleInputSource.ts';
 import { VideoInputSource } from '@/ffmpeg/builder/input/VideoInputSource.ts';
 import { WatermarkInputSource } from '@/ffmpeg/builder/input/WatermarkInputSource.ts';
 import { PixelFormatOutputOption } from '@/ffmpeg/builder/options/OutputOption.ts';
@@ -27,12 +28,14 @@ export class VideoToolboxPipelineBuilder extends SoftwarePipelineBuilder {
     binaryCapabilities: FfmpegCapabilities,
     videoInputFile: Nullable<VideoInputSource>,
     audioInputFile: Nullable<AudioInputSource>,
+    subtitleInputFile: Nullable<SubtitleInputSource>,
     concatInputSource: Nullable<ConcatInputSource>,
     watermarkInputSource: Nullable<WatermarkInputSource>,
   ) {
     super(
       videoInputFile,
       audioInputFile,
+      subtitleInputFile,
       watermarkInputSource,
       concatInputSource,
       binaryCapabilities,

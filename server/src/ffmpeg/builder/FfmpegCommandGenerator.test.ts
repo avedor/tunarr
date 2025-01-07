@@ -2,7 +2,12 @@ import { bootstrapTunarr } from '@/bootstrap.ts';
 import { setGlobalOptions } from '@/globals.ts';
 import tmp from 'tmp';
 import { FfmpegCommandGenerator } from './FfmpegCommandGenerator.ts';
-import { AudioStream, StillImageStream, VideoStream } from './MediaStream.ts';
+import {
+  AudioStream,
+  StillImageStream,
+  SubtitleStream,
+  VideoStream,
+} from './MediaStream.ts';
 import { VideoFormats } from './constants.ts';
 import {
   PixelFormat,
@@ -10,6 +15,7 @@ import {
   PixelFormatYuv420P10Le,
 } from './format/PixelFormat.ts';
 import { AudioInputSource } from './input/AudioInputSource.ts';
+import { SubtitleInputSource } from './input/SubtitleInputSource.ts';
 import { VideoInputSource } from './input/VideoInputSource.ts';
 import { WatermarkInputSource } from './input/WatermarkInputSource.ts';
 import { PipelineBuilderFactory } from './pipeline/PipelineBuilderFactory.ts';
@@ -71,6 +77,10 @@ describe('FfmpegCommandGenerator', () => {
       audioDuration: 11_000,
     });
 
+    const subtitleState = SubtitleState.create({
+      subtitleEncoder: 'srt',
+    });
+
     const target = FrameSize.withDimensions(1280, 720);
 
     const desiredState = new FrameState({
@@ -98,6 +108,12 @@ describe('FfmpegCommandGenerator', () => {
       audioState,
     );
 
+    const subtitleInputFile = new SubtitleInputSource(
+      videoInputFile.path,
+      [SubtitleStream.create({ encoder: 'srt' })],
+      subtitleState,
+    );
+
     const watermarkInputFile = new WatermarkInputSource(
       'http://localhost:8000/images/tunarr.png',
       StillImageStream.create({
@@ -120,6 +136,7 @@ describe('FfmpegCommandGenerator', () => {
       .setHardwareAccelerationMode('vaapi')
       .setVideoInputSource(videoInputFile)
       .setAudioInputSource(audioInputFile)
+      .setSubtitleInputSource(subtitleInputFile)
       .setWatermarkInputSource(watermarkInputFile)
       .build();
 
@@ -134,6 +151,7 @@ describe('FfmpegCommandGenerator', () => {
     const result = generator.generateArgs(
       videoInputFile,
       audioInputFile,
+      subtitleInputFile,
       watermarkInputFile,
       steps,
     );

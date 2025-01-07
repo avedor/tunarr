@@ -18,6 +18,7 @@ import { WatermarkOpacityFilter } from '@/ffmpeg/builder/filter/watermark/Waterm
 import { WatermarkScaleFilter } from '@/ffmpeg/builder/filter/watermark/WatermarkScaleFilter.ts';
 import { AudioInputSource } from '@/ffmpeg/builder/input/AudioInputSource.ts';
 import { ConcatInputSource } from '@/ffmpeg/builder/input/ConcatInputSource.ts';
+import { SubtitleInputSource } from '../../input/SubtitleInputSource.ts';
 import { VideoInputSource } from '@/ffmpeg/builder/input/VideoInputSource.ts';
 import { WatermarkInputSource } from '@/ffmpeg/builder/input/WatermarkInputSource.ts';
 import { VaapiDriverEnvironmentVariable } from '@/ffmpeg/builder/options/EnvironmentVariables.ts';
@@ -59,12 +60,14 @@ export class VaapiPipelineBuilder extends SoftwarePipelineBuilder {
     binaryCapabilities: FfmpegCapabilities,
     videoInputFile: Nullable<VideoInputSource>,
     audioInputFile: Nullable<AudioInputSource>,
+    subtitleInputFile: Nullable<SubtitleInputSource>,
     watermarkInputSource: Nullable<WatermarkInputSource>,
     concatInputSource: Nullable<ConcatInputSource>,
   ) {
     super(
       videoInputFile,
       audioInputFile,
+      subtitleInputFile,
       watermarkInputSource,
       concatInputSource,
       binaryCapabilities,
