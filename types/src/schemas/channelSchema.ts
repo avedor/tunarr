@@ -98,6 +98,9 @@ export const ChannelSchema = z.object({
   stealth: z.boolean(),
   transcoding: ChannelTranscodingOptionsSchema.optional(),
   watermark: WatermarkSchema.optional(),
+  subtitles: z.object({
+    enabled: z.boolean(),
+  }),
   onDemand: z.object({
     enabled: z.boolean(),
   }),

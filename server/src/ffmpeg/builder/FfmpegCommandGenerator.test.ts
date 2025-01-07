@@ -5,7 +5,7 @@ import { FfmpegCommandGenerator } from './FfmpegCommandGenerator.ts';
 import {
   AudioStream,
   StillImageStream,
-  SubtitleStream,
+  SubtitlesStream,
   VideoStream,
 } from './MediaStream.ts';
 import { VideoFormats } from './constants.ts';
@@ -15,11 +15,12 @@ import {
   PixelFormatYuv420P10Le,
 } from './format/PixelFormat.ts';
 import { AudioInputSource } from './input/AudioInputSource.ts';
-import { SubtitleInputSource } from './input/SubtitleInputSource.ts';
+import { SubtitlesInputSource } from './input/SubtitlesInputSource.ts';
 import { VideoInputSource } from './input/VideoInputSource.ts';
 import { WatermarkInputSource } from './input/WatermarkInputSource.ts';
 import { PipelineBuilderFactory } from './pipeline/PipelineBuilderFactory.ts';
 import { AudioState } from './state/AudioState.ts';
+import { SubtitlesState } from './state/SubtitlesState.ts';
 import { FfmpegState } from './state/FfmpegState.ts';
 import { FrameState } from './state/FrameState.ts';
 import { FrameSize } from './types.ts';
@@ -77,8 +78,8 @@ describe('FfmpegCommandGenerator', () => {
       audioDuration: 11_000,
     });
 
-    const subtitleState = SubtitleState.create({
-      subtitleEncoder: 'srt',
+    const subtitleState = SubtitlesState.create({
+      subtitlesEncoder: 'srt',
     });
 
     const target = FrameSize.withDimensions(1280, 720);
@@ -108,9 +109,9 @@ describe('FfmpegCommandGenerator', () => {
       audioState,
     );
 
-    const subtitleInputFile = new SubtitleInputSource(
+    const subtitlesInputFile = new SubtitlesInputSource(
       videoInputFile.path,
-      [SubtitleStream.create({ encoder: 'srt' })],
+      [SubtitlesStream.create({ index: 1, codec: 'srt' })],
       subtitleState,
     );
 
@@ -136,7 +137,7 @@ describe('FfmpegCommandGenerator', () => {
       .setHardwareAccelerationMode('vaapi')
       .setVideoInputSource(videoInputFile)
       .setAudioInputSource(audioInputFile)
-      .setSubtitleInputSource(subtitleInputFile)
+      .setSubtitlesInputSource(subtitlesInputFile)
       .setWatermarkInputSource(watermarkInputFile)
       .build();
 
@@ -151,7 +152,7 @@ describe('FfmpegCommandGenerator', () => {
     const result = generator.generateArgs(
       videoInputFile,
       audioInputFile,
-      subtitleInputFile,
+      subtitlesInputFile,
       watermarkInputFile,
       steps,
     );

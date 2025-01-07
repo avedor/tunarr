@@ -19,7 +19,7 @@ import { PassThrough } from 'stream';
 import { v4 } from 'uuid';
 import z from 'zod';
 
-// eslint-disable-next-line @typescript-eslint/require-await
+ 
 export const streamApi: RouterPluginAsyncCallback = async (fastify) => {
   const logger = LoggerFactory.child({
     caller: import.meta,
@@ -138,6 +138,10 @@ export const streamApi: RouterPluginAsyncCallback = async (fastify) => {
       }
 
       const session = sessionResult.get();
+
+      if (lineup.subtitlesConfig) {
+        await req.serverCtx.subtitlesService.resumeChannel(channel.uuid);
+      }
 
       if (lineup.onDemandConfig) {
         await req.serverCtx.onDemandChannelService.resumeChannel(channel.uuid);

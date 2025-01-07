@@ -71,6 +71,9 @@ function getDefaultFormValues(channel: Channel): SaveChannelRequest {
         },
       ],
     },
+    subtitles: {
+      enabled: channel.subtitles?.enabled ?? false,
+    },
     onDemand: {
       enabled: channel.onDemand.enabled,
     },
@@ -90,7 +93,7 @@ export function EditChannelForm({
   const formMethods = useForm<SaveChannelRequest>({
     mode: 'onChange',
     // Change this so we only load the form on initial...
-    // eslint-disable-next-line @typescript-eslint/require-await
+     
     defaultValues: getDefaultFormValues(channel),
   });
 

@@ -79,6 +79,20 @@ export const OnDemandChannelConfigSchema = z.object({
 
 export type OnDemandChannelConfig = z.infer<typeof OnDemandChannelConfigSchema>;
 
+export const SubtitlesConfigSchema = z.object({
+  enabled: z
+    .union([z.literal('disabled'), z.literal('enabled')])
+    .default('disabled')
+    .catch('disabled'),
+  state: z
+    .union([z.literal('paused'), z.literal('playing')])
+    .default('paused')
+    .catch('paused'),
+  cursor: z.number().nonnegative().default(0).catch(0),
+});
+
+export type SubtitlesConfig = z.infer<typeof SubtitlesConfigSchema>;
+
 export const CurrentLineupSchemaVersion = 1;
 
 export const LineupSchema = z.object({
@@ -137,6 +151,10 @@ export const LineupSchema = z.object({
   // OnDemand configuration for this channel. If empty, the channel
   // is not configured as on-demand.
   onDemandConfig: OnDemandChannelConfigSchema.optional(),
+
+  // Subtitle configuration for this channel. If empty, the channel
+  // has subtitles turned off.
+  subtitlesConfig: SubtitlesConfigSchema.optional(),
 });
 
 export type Lineup = z.infer<typeof LineupSchema>;

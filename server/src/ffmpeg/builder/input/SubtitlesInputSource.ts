@@ -1,12 +1,12 @@
-import { SubtitleStream } from '@/ffmpeg/builder/MediaStream.ts';
+import { SubtitlesStream } from '@/ffmpeg/builder/MediaStream.ts';
 import {
   InputSource,
   InputSourceContinuity,
   StreamSource,
 } from './InputSource.ts';
 
-export class SubtitleInputSource<
-  StreamType extends SubtitleStream = SubtitleStream,
+export class SubtitlesInputSource<
+  StreamType extends SubtitlesStream = SubtitlesStream,
 > extends InputSource<StreamType> {
   readonly type = 'subtitle';
 

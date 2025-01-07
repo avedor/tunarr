@@ -229,6 +229,32 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
             </Box>
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }}>
+                Subtitles
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Enable subtitles for channel media where available.
+                <br />
+                <strong>NOTE:</strong> Only external subtitle files are are
+                supported at this time.
+              </Typography>
+              <Controller
+                control={control}
+                name="subtitles.enabled"
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    }
+                    label="Enabled"
+                  />
+                )}
+              />
+            </Box>
+            <Box>
+              <Typography variant="h5" sx={{ mb: 1 }}>
                 On-Demand
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>

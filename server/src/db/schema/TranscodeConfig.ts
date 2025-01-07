@@ -70,6 +70,17 @@ export const TranscodeAudioOutputFormat = {
   Mp3: 'mp3' as const,
 } as const;
 
+export const TranscodeSubtitlesOutputFormats = ['ass', 'srt'] as const;
+
+export type TranscodeSubtitlesOutputFormat = TupleToUnion<
+  typeof TranscodeSubtitlesOutputFormats
+>;
+
+export const TranscodeSubtitlesOutputFormat = {
+  Ass: 'ass' as const,
+  Srt: 'srt' as const,
+} as const;
+
 export const ErrorScreenTypes = [
   'static',
   'pic',
@@ -99,6 +110,7 @@ export const TranscodeConfigColumns: (keyof TrannscodeConfigTable)[] = [
   'name',
   'normalizeFrameRate',
   'resolution',
+  'subtitlesFormat',
   'threadCount',
   'uuid',
   'vaapiDevice',
@@ -139,6 +151,8 @@ export interface TrannscodeConfigTable extends WithUuid {
   audioSampleRate: number;
   audioVolumePercent: Generated<number>; // Default 100
 
+  subtitlesFormat: TranscodeSubtitlesOutputFormat;
+
   normalizeFrameRate: Generated<number>; // Boolean
   deinterlaceVideo: Generated<number>; // Boolean
   disableChannelOverlay: Generated<number>; // Boolean
@@ -160,11 +174,15 @@ export const transcodeConfigFromLegacySettings = (
   const audioSetting = TranscodeAudioOutputFormats.find(
     (fmt) => legacySettings.audioEncoder === fmt,
   );
+  const subtitlesSetting = TranscodeSubtitlesOutputFormats.find(
+    (fmt) => legacySettings.subtitlesFormat === fmt,
+  );
   const videoSetting = TranscodeVideoOutputFormats.find(
     (fmt) => legacySettings.videoFormat === fmt,
   );
 
   const audioFormat = audioSetting ?? 'aac';
+  const subtitlesFormat = subtitlesSetting ?? 'srt';
   const videoFormat = videoSetting ?? 'h264';
 
   return {
@@ -182,6 +200,7 @@ export const transcodeConfigFromLegacySettings = (
     ),
     threadCount: legacySettings.numThreads,
     uuid: v4(),
+    subtitlesFormat,
     videoBitRate: legacySettings.videoBitrate,
     videoBufferSize: legacySettings.videoBufferSize,
     videoFormat,

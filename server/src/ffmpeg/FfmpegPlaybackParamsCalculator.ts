@@ -1,6 +1,7 @@
 import {
   TranscodeAudioOutputFormat,
   TranscodeConfig,
+  TranscodeSubtitlesOutputFormat,
 } from '@/db/schema/TranscodeConfig.ts';
 import { ChannelStreamMode } from '@/db/schema/base.ts';
 import { StreamDetails, VideoStreamDetails } from '@/stream/types.ts';
@@ -25,6 +26,7 @@ export class FfmpegPlaybackParamsCalculator {
       return {
         hwAccel: HardwareAccelerationMode.None,
         audioFormat: TranscodeAudioOutputFormat.Copy,
+        subtitlesFormat: TranscodeSubtitlesOutputFormat.Srt,
         videoFormat: 'copy', // Should be included in DB options
         deinterlace: false,
       } satisfies FfmpegPlaybackParams;
@@ -38,6 +40,7 @@ export class FfmpegPlaybackParamsCalculator {
       audioChannels: this.transcodeConfig.audioChannels,
       audioSampleRate: this.transcodeConfig.audioSampleRate,
       hwAccel: this.transcodeConfig.hardwareAccelerationMode,
+      subtitlesFormat: this.transcodeConfig.subtitlesFormat,
       videoFormat: this.transcodeConfig.videoFormat,
       videoBitrate: this.transcodeConfig.videoBitRate,
       videoBufferSize: this.transcodeConfig.videoBufferSize,
@@ -110,6 +113,7 @@ export class FfmpegPlaybackParamsCalculator {
       audioChannels: this.transcodeConfig.audioChannels,
       audioSampleRate: this.transcodeConfig.audioSampleRate,
       hwAccel: this.transcodeConfig.hardwareAccelerationMode,
+      subtitlesFormat: this.transcodeConfig.subtitlesFormat,
       videoFormat: this.transcodeConfig.videoFormat,
       videoBitrate: this.transcodeConfig.videoBitRate,
       videoBufferSize: this.transcodeConfig.videoBufferSize,
@@ -159,6 +163,10 @@ export type FfmpegPlaybackParams = {
   audioChannels?: number;
   audioSampleRate?: number;
   audioDuration?: number;
+
+  //subtitle details
+  subtitlesFormat: string;
+  subtitlesLanguage?: string;
 };
 
 function needsToScale(
