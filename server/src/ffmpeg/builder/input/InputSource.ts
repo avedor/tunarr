@@ -10,7 +10,7 @@ import {
 } from '../../../stream/types.ts';
 import { VideoInputSource } from './VideoInputSource.ts';
 
-export type InputSourceType = 'video' | 'audio' | 'subtitle';
+export type InputSourceType = 'video' | 'audio' | 'subtitles';
 export type InputSourceProtocol = 'file' | 'http' | 'filter';
 export type InputSourceContinuity = 'discrete' | 'infinite';
 

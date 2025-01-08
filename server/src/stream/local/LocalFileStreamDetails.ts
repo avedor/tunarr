@@ -1,6 +1,10 @@
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { FfmpegInfo } from '@/ffmpeg/ffmpegInfo.ts';
-import { FfprobeAudioStream, FfprobeVideoStream } from '@/types/ffmpeg.ts';
+import {
+  FfprobeAudioStream,
+  FfprobeVideoStream,
+  FfprobeSubtitlesStream,
+} from '@/types/ffmpeg.ts';
 import { Maybe, Nullable } from '@/types/util.ts';
 import dayjs from '@/util/dayjs.ts';
 import { fileExists } from '@/util/fsUtil.ts';
@@ -13,6 +17,7 @@ import {
   FileStreamSource,
   HttpStreamSource,
   ProgramStreamResult,
+  SubtitlesStreamDetails,
   VideoStreamDetails,
 } from '../types.ts';
 
@@ -53,8 +58,8 @@ export class LocalFileStreamDetails {
           videoStream.field_order === 'interlaced'
             ? 'interlaced'
             : videoStream.field_order === 'progressive'
-            ? 'progressive'
-            : 'unknown',
+              ? 'progressive'
+              : 'unknown',
         width: videoStream.width,
         height: videoStream.height,
         framerate: videoStream.r_frame_rate ?? undefined,
@@ -90,12 +95,30 @@ export class LocalFileStreamDetails {
       },
     );
 
+    const subtitlesStreamDetails = map(
+      filter(
+        probeResult.streams,
+        (stream): stream is FfprobeSubtitlesStream =>
+          stream.codec_type === 'subtitles',
+      ),
+      (subtitlesStream) => {
+        return {
+          codec: subtitlesStream.codec_name,
+          index: subtitlesStream.index.toFixed(),
+          profile: subtitlesStream.profile,
+        } satisfies SubtitlesStreamDetails;
+      },
+    );
+
     return {
       streamDetails: {
         videoDetails: videoDetails ? [videoDetails] : undefined,
         audioDetails: isEmpty(audioStreamDetails)
           ? undefined
           : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
+        subtitlesDetails: isEmpty(subtitlesStreamDetails)
+          ? undefined
+          : (subtitlesStreamDetails as NonEmptyArray<SubtitlesStreamDetails>),
         duration: dayjs.duration({ seconds: probeResult.format.duration }),
       },
       streamSource: this.path.startsWith('http')

@@ -1,4 +1,5 @@
 import { SubtitlesStream } from '@/ffmpeg/builder/MediaStream.ts';
+import { SubtitlesState } from '../state/SubtitlesState.ts';
 import {
   InputSource,
   InputSourceContinuity,
@@ -8,11 +9,12 @@ import {
 export class SubtitlesInputSource<
   StreamType extends SubtitlesStream = SubtitlesStream,
 > extends InputSource<StreamType> {
-  readonly type = 'subtitle';
+  readonly type = 'subtitles';
 
   constructor(
     source: StreamSource,
     public streams: StreamType[],
+    public desiredState: SubtitlesState,
     continuity: InputSourceContinuity = 'discrete',
   ) {
     super(source, continuity);

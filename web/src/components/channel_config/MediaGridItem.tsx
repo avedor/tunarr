@@ -38,7 +38,7 @@ export type GridItemMetadata = {
   childCount: number | null;
   aspectRatio: 'portrait' | 'landscape' | 'square';
   title: string;
-  subtitle: JSX.Element | string | null;
+  subtitles: JSX.Element | string | null;
   thumbnailUrl: string;
   selectedMedia: SelectedMedia;
 };
@@ -75,7 +75,7 @@ const MediaGridItemInner = <T,>(
       selectedMedia: selectedMediaItem,
       aspectRatio,
       title,
-      subtitle,
+      subtitles,
       childCount,
     },
     style,
@@ -171,8 +171,8 @@ const MediaGridItemInner = <T,>(
                     aspectRatio === 'square'
                       ? 100
                       : aspectRatio === 'landscape'
-                      ? 84
-                      : 225, // 84 accomodates episode img height
+                        ? 84
+                        : 225, // 84 accomodates episode img height
                   maxHeight: '100%',
                 }}
               >
@@ -203,8 +203,8 @@ const MediaGridItemInner = <T,>(
                       aspectRatio === 'square'
                         ? '1/1'
                         : aspectRatio === 'landscape'
-                        ? '1.77/1'
-                        : '2/3',
+                          ? '1.77/1'
+                          : '2/3',
                     width: '100%',
                     height: 'auto',
                     zIndex: 1,
@@ -215,8 +215,8 @@ const MediaGridItemInner = <T,>(
                       aspectRatio === 'square'
                         ? 100
                         : aspectRatio === 'landscape'
-                        ? 84
-                        : 225,
+                          ? 84
+                          : 225,
                   }}
                 ></Box>
               </Box>
@@ -229,14 +229,14 @@ const MediaGridItemInner = <T,>(
                   aspectRatio === 'square'
                     ? 144
                     : aspectRatio === 'landscape'
-                    ? 84
-                    : 250
+                      ? 84
+                      : 250
                 }
               />
             ))}
           <ImageListItemBar
             title={title}
-            subtitle={subtitle}
+            subtitles={subtitles}
             position="below"
             actionIcon={
               <IconButton

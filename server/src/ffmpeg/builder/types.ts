@@ -33,7 +33,7 @@ export const StreamKinds = [
   'video',
   'all',
   'stillimage',
-  'subtitle',
+  'subtitles',
 ] as const;
 
 export type StreamKind = TupleToUnion<typeof StreamKinds>;

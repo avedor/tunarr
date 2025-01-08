@@ -43,7 +43,7 @@ export class AudioStream implements MediaStream {
 }
 
 export class SubtitlesStream implements MediaStream {
-  readonly kind: StreamKind = 'subtitle';
+  readonly kind: StreamKind = 'subtitles';
   index: number;
   codec: string;
   language?: string;
