@@ -18,7 +18,7 @@ export class Pipeline {
     return this.#commandGenerator.generateArgs(
       this.inputs.videoInput,
       this.inputs.audioInput,
-      this.inputs.subtitleInput,
+      this.inputs.subtitlesInput,
       this.inputs.watermarkInput,
       this.inputs.concatInput,
       this.steps,

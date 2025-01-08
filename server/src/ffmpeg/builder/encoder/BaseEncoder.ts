@@ -46,7 +46,7 @@ export class AudioEncoder extends BaseEncoder {
   }
 }
 
-export class SubtitleEncoder extends BaseEncoder {
+export class SubtitlesEncoder extends BaseEncoder {
   constructor(encoder: string) {
     super(encoder, 'subtitles');
   }

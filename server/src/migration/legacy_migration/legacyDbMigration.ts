@@ -3,6 +3,7 @@ import { NewCachedImage } from '@/db/schema/CachedImage.ts';
 import {
   NewTranscodeConfig,
   TranscodeAudioOutputFormats,
+  TranscodeSubtitlesOutputFormats,
   TranscodeVideoOutputFormats,
 } from '@/db/schema/TranscodeConfig.ts';
 import { MediaSourceApiFactory } from '@/external/MediaSourceApiFactory.ts';
@@ -444,6 +445,7 @@ export class LegacyDbMigrator {
               videoFormat,
               hardwareAccelerationMode: hwAccel,
               audioEncoder: ffmpegSettings['audioEncoder'] as string,
+              subtitlesEncoder: ffmpegSettings['subtitlesEncoder'] as string,
               targetResolution:
                 tryParseResolution(
                   ffmpegSettings['targetResolution'] as string,
@@ -496,6 +498,9 @@ export class LegacyDbMigrator {
           const audioSetting = TranscodeAudioOutputFormats.find(
             (fmt) => newFfmpegSettings.audioEncoder === fmt,
           );
+          const subtitlesSetting = TranscodeSubtitlesOutputFormats.find(
+            (fmt) => newFfmpegSettings.subtitlesEncoder === fmt,
+          );
           const videoSetting = TranscodeVideoOutputFormats.find(
             (fmt) => newFfmpegSettings.videoFormat === fmt,
           );
@@ -512,6 +517,7 @@ export class LegacyDbMigrator {
             resolution: JSON.stringify(
               newFfmpegSettings.targetResolution satisfies Resolution,
             ),
+            subtitlesFormat: subtitlesSetting ?? 'srt',
             threadCount: newFfmpegSettings.numThreads,
             uuid: v4(),
             videoBitRate: newFfmpegSettings.videoBitrate,

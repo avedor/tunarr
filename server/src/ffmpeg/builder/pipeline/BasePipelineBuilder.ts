@@ -8,7 +8,7 @@ import { Decoder } from '@/ffmpeg/builder/decoder/Decoder.ts';
 import { DecoderFactory } from '@/ffmpeg/builder/decoder/DecoderFactory.ts';
 import {
   AudioEncoder,
-  SubtitleEncoder,
+  SubtitlesEncoder,
   VideoEncoder,
 } from '@/ffmpeg/builder/encoder/BaseEncoder.ts';
 import { Encoder } from '@/ffmpeg/builder/encoder/Encoder.ts';
@@ -131,11 +131,11 @@ export type PipelineAudioFunctionArgs = {
 export type PipelineBuilderContext = {
   videoStream?: VideoStream;
   audioStream?: AudioStream;
-  subtitleStream?: SubtitlesStream;
+  subtitlesStream?: SubtitlesStream;
   ffmpegState: FfmpegState;
   desiredState: FrameState;
   desiredAudioState?: AudioState;
-  desiredSubtitleState?: SubtitlesState;
+  desiredSubtitlesState?: SubtitlesState;
   pipelineSteps: PipelineStep[];
   filterChain: FilterChain;
   decoder: Nullable<Decoder>;
@@ -157,7 +157,7 @@ export type PipelineBuilderContextWithAudio = MarkRequired<
 >;
 export type PipelineBuilderContextWithSubtitles = MarkRequired<
   PipelineBuilderContext,
-  'subtitleStream' | 'desiredSubtitleState'
+  'subtitlesStream' | 'desiredSubtitlesState'
 >;
 
 export function isVideoPipelineContext(
@@ -174,12 +174,12 @@ export function isAudioPipelineContext(
   );
 }
 
-export function isSubtitlePipelineContext(
+export function isSubtitlesPipelineContext(
   context: PipelineBuilderContext,
 ): context is PipelineBuilderContextWithSubtitles {
   return (
-    !isUndefined(context.subtitleStream) &&
-    !isUndefined(context.desiredSubtitleState)
+    !isUndefined(context.subtitlesStream) &&
+    !isUndefined(context.desiredSubtitlesState)
   );
 }
 
@@ -194,7 +194,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
   constructor(
     protected nullableVideoInputSource: Nullable<VideoInputSource>,
     private audioInputSource: Nullable<AudioInputSource>,
-    private subtitleInputSource: Nullable<SubtitlesInputSource>,
+    private subtitlesInputSource: Nullable<SubtitlesInputSource>,
     protected watermarkInputSource: Nullable<WatermarkInputSource>,
     protected concatInputSource: Nullable<ConcatInputSource>,
     protected ffmpegCapabilities: FfmpegCapabilities,
@@ -253,7 +253,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(pipelineSteps, {
       videoInput: null,
       audioInput: null,
-      subtitleInput: null,
+      subtitlesInput: null,
       concatInput: input,
       watermarkInput: null,
     });
@@ -294,7 +294,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(pipelineSteps, {
       videoInput: null,
       audioInput: null,
-      subtitleInput: null,
+      subtitlesInput: null,
       concatInput: input,
       watermarkInput: null,
     });
@@ -304,7 +304,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     this.context = {
       videoStream: first(this.videoInputSource.streams),
       audioStream: first(this.audioInputSource?.streams),
-      subtitleStream: first(this.subtitleInputSource?.streams),
+      subtitlesStream: first(this.subtitlesInputSource?.streams),
       ffmpegState,
       desiredState,
       desiredAudioState: this.audioInputSource?.desiredState,
@@ -446,7 +446,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
       new ComplexFilter(
         this.videoInputSource,
         this.audioInputSource,
-        this.subtitleInputSource,
+        this.subtitlesInputSource,
         this.watermarkInputSource,
         this.context.filterChain,
       ),
@@ -459,7 +459,7 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
     return new Pipeline(this.pipelineSteps, {
       videoInput: this.videoInputSource,
       audioInput: this.audioInputSource,
-      subtitleInput: this.subtitleInputSource,
+      subtitlesInput: this.subtitlesInputSource,
       watermarkInput: this.watermarkInputSource,
       concatInput: this.concatInputSource,
     });
@@ -565,11 +565,11 @@ export abstract class BasePipelineBuilder implements PipelineBuilder {
   }
 
   protected buildSubtitlePipeline() {
-    if (!isSubtitlePipelineContext(this.context)) {
+    if (!isSubtitlesPipelineContext(this.context)) {
       return;
     }
-    const encoder = new SubtitleEncoder(
-      this.context.desiredSubtitleState.subtitlesEncoder,
+    const encoder = new SubtitlesEncoder(
+      this.context.desiredSubtitlesState.subtitlesEncoder,
     );
     this.pipelineSteps.push(encoder);
   }

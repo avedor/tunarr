@@ -244,7 +244,7 @@ export class FfmpegStreamFactory extends IFFMPEG {
       ...pipeline.inputs,
       videoInput: null,
       audioInput: null,
-      subtitleInput: null,
+      subtitlesInput: null,
     });
 
     return new FfmpegTranscodeSession(

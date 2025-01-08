@@ -174,15 +174,11 @@ export const transcodeConfigFromLegacySettings = (
   const audioSetting = TranscodeAudioOutputFormats.find(
     (fmt) => legacySettings.audioEncoder === fmt,
   );
-  const subtitlesSetting = TranscodeSubtitlesOutputFormats.find(
-    (fmt) => legacySettings.subtitlesFormat === fmt,
-  );
   const videoSetting = TranscodeVideoOutputFormats.find(
     (fmt) => legacySettings.videoFormat === fmt,
   );
 
   const audioFormat = audioSetting ?? 'aac';
-  const subtitlesFormat = subtitlesSetting ?? 'srt';
   const videoFormat = videoSetting ?? 'h264';
 
   return {
@@ -200,7 +196,6 @@ export const transcodeConfigFromLegacySettings = (
     ),
     threadCount: legacySettings.numThreads,
     uuid: v4(),
-    subtitlesFormat,
     videoBitRate: legacySettings.videoBitrate,
     videoBufferSize: legacySettings.videoBufferSize,
     videoFormat,

@@ -203,6 +203,7 @@ export class TranscodeConfigDB {
       hardwareAccelerationMode: 'none',
       normalizeFrameRate: booleanToNumber(false),
       deinterlaceVideo: booleanToNumber(true),
+      subtitlesFormat: 'srt',
       videoBitRate: 3500,
       videoBufferSize: 3500 * 2,
       videoFormat: 'h264',

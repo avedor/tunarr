@@ -42,6 +42,7 @@ import {
   ProgramStreamResult,
   StreamDetails,
   StreamSource,
+  SubtitlesStreamDetails,
   VideoStreamDetails,
 } from '../types.js';
 
@@ -284,6 +285,30 @@ export class JellyfinStreamDetails {
       },
     );
 
+    const subtitlesStreamDetails = map(
+      sortBy(
+        filter(
+          firstMediaSource?.MediaStreams,
+          (stream) => stream.Type === 'Subtitle',
+        ),
+        (stream) => [stream.Index ?? 0, !stream.IsDefault],
+      ),
+      (subtitlesStream) => {
+        return {
+          codec: nullToUndefined(subtitlesStream.Codec),
+          index:
+            ifDefined(subtitlesStream.Index, (streamIndex) => {
+              const index = streamIndex - externalStreamCount;
+              if (index >= 0) {
+                return index.toString();
+              }
+              return;
+            }) ?? undefined,
+          profile: nullToUndefined(subtitlesStream.Profile),
+        } satisfies SubtitlesStreamDetails;
+      },
+    );
+
     if (!videoStreamDetails && isEmpty(audioStreamDetails)) {
       this.logger.warn(
         'Could not find a video nor audio stream for Plex item %s',
@@ -301,6 +326,9 @@ export class JellyfinStreamDetails {
       audioDetails: isEmpty(audioStreamDetails)
         ? undefined
         : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
+      subtitlesDetails: isEmpty(subtitlesStreamDetails)
+        ? undefined
+        : (subtitlesStreamDetails as NonEmptyArray<SubtitlesStreamDetails>),
     };
 
     if (audioOnly) {
