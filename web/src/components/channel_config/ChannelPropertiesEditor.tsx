@@ -234,7 +234,7 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
               <Typography variant="body2" sx={{ mb: 1 }}>
                 Enable subtitles for channel media where available.
                 <br />
-                <strong>NOTE:</strong> Only external subtitle files are are
+                <strong>NOTE:</strong> Only external subtitle files are
                 supported at this time.
               </Typography>
               <Controller

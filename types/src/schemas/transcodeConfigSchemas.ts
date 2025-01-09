@@ -37,8 +37,6 @@ export type SupportedTranscodeAudioOutputFormats = TupleToUnion<
   typeof SupportedTranscodeAudioOutputFormats
 >;
 
-export const SupportedTranscodeSubtitlesOutputFormats = ['ass', 'srt'] as const;
-
 export const TranscodeConfigSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -59,7 +57,6 @@ export const TranscodeConfigSchema = z.object({
   audioBufferSize: z.number(),
   audioSampleRate: z.number(),
   audioVolumePercent: z.number().default(100),
-  subtitlesFormat: z.enum(SupportedTranscodeSubtitlesOutputFormats),
   normalizeFrameRate: z.boolean(),
   deinterlaceVideo: z.boolean(),
   disableChannelOverlay: z.boolean(),

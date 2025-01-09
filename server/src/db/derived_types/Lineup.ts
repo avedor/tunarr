@@ -80,10 +80,7 @@ export const OnDemandChannelConfigSchema = z.object({
 export type OnDemandChannelConfig = z.infer<typeof OnDemandChannelConfigSchema>;
 
 export const SubtitlesConfigSchema = z.object({
-  enabled: z
-    .union([z.literal('disabled'), z.literal('enabled')])
-    .default('disabled')
-    .catch('disabled'),
+  enabled: z.boolean().default(false).catch(false),
   state: z
     .union([z.literal('paused'), z.literal('playing')])
     .default('paused')

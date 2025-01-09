@@ -2,7 +2,6 @@ import { getSettings } from '@/db/SettingsDB.ts';
 import {
   NewTranscodeConfig,
   TranscodeAudioOutputFormats,
-  TranscodeSubtitlesOutputFormats,
   TranscodeVideoOutputFormats,
 } from '@/db/schema/TranscodeConfig.ts';
 import { DB } from '@/db/schema/db.ts';
@@ -86,7 +85,6 @@ export default {
       .addColumn('is_default', 'boolean', (col) =>
         col.notNull().defaultTo(false),
       )
-      .addColumn('subtitles_format', 'text')
       .execute();
 
     await db.schema
@@ -104,9 +102,6 @@ export default {
     const existingFfmpegSettings = getSettings().ffmpegSettings();
     const audioSetting = TranscodeAudioOutputFormats.find(
       (fmt) => existingFfmpegSettings.audioEncoder === fmt,
-    );
-    const subtitlesSetting = TranscodeSubtitlesOutputFormats.find(
-      (fmt) => existingFfmpegSettings.subtitlesEncoder === fmt,
     );
     const videoSetting = TranscodeVideoOutputFormats.find(
       (fmt) => existingFfmpegSettings.videoFormat === fmt,
@@ -140,7 +135,6 @@ export default {
       vaapiDevice: existingFfmpegSettings.vaapiDevice,
       videoBitDepth: 8,
       isDefault: booleanToNumber(true),
-      subtitlesFormat: subtitlesSetting ?? 'srt',
     };
 
     const transcodeConfigId = (

@@ -11,7 +11,13 @@ import { gcd } from '@/util/index.ts';
 import { Logger, LoggerFactory } from '@/util/logging/LoggerFactory.js';
 import { makeLocalUrl } from '@/util/serverUtil.js';
 import { getTunarrVersion } from '@/util/version.js';
-import { ChannelStreamMode, FfmpegSettings, Resolution, Watermark } from '@tunarr/types';
+import {
+  ChannelStreamMode,
+  FfmpegSettings,
+  Resolution,
+  Watermark,
+  Subtitles,
+} from '@tunarr/types';
 
 import { NvidiaHardwareCapabilitiesFactory } from '@/ffmpeg/builder/capabilities/NvidiaHardwareCapabilitiesFactory.ts';
 import dayjs from 'dayjs';
@@ -146,11 +152,12 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
+  subtitles?: Subtitles;
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
   ptsOffset?: number;
-  streamMode?: ChannelStreamMode
+  streamMode?: ChannelStreamMode;
 };
 
 export type StreamSessionOptions = StreamOptions & {
@@ -225,6 +232,8 @@ export class FFMPEG implements IFFMPEG {
       `-i`,
       streamUrl,
     ];
+
+    console.log('FFmpeg Arguments:', ffmpegArgs.join(' '));
 
     // Workaround until new pipeline is in place...
     const scThreshold = this.transcodeConfig.videoFormat.includes('mpeg2')
@@ -340,6 +349,7 @@ export class FFMPEG implements IFFMPEG {
     streamDetails,
     startTime,
     duration,
+    subtitles: enableSubs,
     watermark: enableIcon,
     realtime = true,
     outputFormat,
@@ -352,6 +362,7 @@ export class FFMPEG implements IFFMPEG {
       startTime,
       duration,
       realtime,
+      enableSubs,
       enableIcon,
       outputFormat,
       ptsOffset ?? null,
@@ -396,6 +407,7 @@ export class FFMPEG implements IFFMPEG {
       undefined,
       streamStats.duration!,
       true,
+      /*subtitles=*/ undefined,
       /*watermark=*/ undefined,
       outputFormat,
       null,
@@ -420,6 +432,7 @@ export class FFMPEG implements IFFMPEG {
       duration,
       true,
       undefined,
+      undefined,
       outputFormat,
       null,
     );
@@ -431,6 +444,7 @@ export class FFMPEG implements IFFMPEG {
     startTime: Maybe<Duration>,
     duration: Duration,
     realtime: boolean,
+    subtitles: Maybe<Subtitles>,
     watermark: Maybe<Watermark>,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
@@ -457,8 +471,8 @@ export class FFMPEG implements IFFMPEG {
       const vaapiDevice = isNonEmptyString(this.transcodeConfig.vaapiDevice)
         ? this.transcodeConfig.vaapiDevice
         : isLinux()
-        ? '/dev/dri/renderD128'
-        : undefined;
+          ? '/dev/dri/renderD128'
+          : undefined;
       ffmpegArgs.push(
         // Crude workaround for no av1 decoding support
         ...(videoStream?.codec === 'av1' ? [] : ['-hwaccel', 'vaapi']),
@@ -737,6 +751,10 @@ export class FFMPEG implements IFFMPEG {
       ffmpegArgs.push(`-i`, `${watermark.url}`);
       overlayFile = inputFiles++;
       this.ensureResolution = true;
+    }
+
+    if (!isNil(subtitles?.url)) {
+      ffmpegArgs.push(`-i`, `${subtitles.url}`);
     }
 
     // Resolution fix: Add scale filter, current stream becomes [siz]

@@ -11,7 +11,7 @@ const DefaultSubtitlesState: SubtitlesState = {
   subtitlesEncoder: 'srt',
   subtitlesLanguage: 'und', // 'und' for undefined
   subtitlesCodec: null,
-  subtitlesFormat: null,
+  subtitlesFormat: 'srt',
   subtitlesDelay: null,
   subtitlesDuration: null,
   subtitlesDefault: false,

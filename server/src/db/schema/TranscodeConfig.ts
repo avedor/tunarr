@@ -70,17 +70,6 @@ export const TranscodeAudioOutputFormat = {
   Mp3: 'mp3' as const,
 } as const;
 
-export const TranscodeSubtitlesOutputFormats = ['ass', 'srt'] as const;
-
-export type TranscodeSubtitlesOutputFormat = TupleToUnion<
-  typeof TranscodeSubtitlesOutputFormats
->;
-
-export const TranscodeSubtitlesOutputFormat = {
-  Ass: 'ass' as const,
-  Srt: 'srt' as const,
-} as const;
-
 export const ErrorScreenTypes = [
   'static',
   'pic',
@@ -110,7 +99,6 @@ export const TranscodeConfigColumns: (keyof TrannscodeConfigTable)[] = [
   'name',
   'normalizeFrameRate',
   'resolution',
-  'subtitlesFormat',
   'threadCount',
   'uuid',
   'vaapiDevice',
@@ -150,8 +138,6 @@ export interface TrannscodeConfigTable extends WithUuid {
   audioBufferSize: number;
   audioSampleRate: number;
   audioVolumePercent: Generated<number>; // Default 100
-
-  subtitlesFormat: TranscodeSubtitlesOutputFormat;
 
   normalizeFrameRate: Generated<number>; // Boolean
   deinterlaceVideo: Generated<number>; // Boolean

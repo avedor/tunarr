@@ -398,9 +398,7 @@ export class ChannelDB {
     if (isDefined(createReq.subtitles) && createReq.subtitles.enabled) {
       const db = await this.getFileDb(channel.uuid);
       await db.update((lineup) => {
-        lineup.subtitlesConfig = {
-          state: 'disabled',
-        };
+        lineup.subtitlesConfig.enabled = false;
       });
     }
 
@@ -488,9 +486,7 @@ export class ChannelDB {
       const db = await this.getFileDb(id);
       await db.update((lineup) => {
         if (updateReq.subtitles?.enabled ?? false) {
-          lineup.subtitlesConfig = {
-            state: 'disabled',
-          };
+          lineup.subtitlesConfig.enabled = false;
         } else {
           delete lineup['subtitlesConfig'];
         }

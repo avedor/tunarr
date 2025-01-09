@@ -6,10 +6,13 @@ import {
   ChannelTranscodingOptionsSchema,
   FillerCollectionSchema,
   SaveChannelRequestSchema,
+  SubtitlesSchema,
   WatermarkSchema,
   type ChannelStreamMode as ChannelStreamModeType,
 } from './schemas/channelSchema.js';
 import { ChannelIconSchema } from './schemas/index.js';
+
+export type Subtitles = z.infer<typeof SubtitlesSchema>;
 
 export type Watermark = z.infer<typeof WatermarkSchema>;
 

@@ -7,6 +7,13 @@ import {
 } from './programmingSchema.js';
 import { ChannelIconSchema } from './utilSchemas.js';
 
+export const SubtitlesSchema = z.object({
+  url: z.string().optional(),
+  enabled: z.boolean(),
+  position: z.union([z.literal('top'), z.literal('bottom')]).default('bottom'),
+  opacity: z.number().min(0).max(100).int().optional().catch(100).default(100),
+});
+
 export const WatermarkSchema = z.object({
   url: z.string().optional(),
   enabled: z.boolean(),
@@ -98,9 +105,7 @@ export const ChannelSchema = z.object({
   stealth: z.boolean(),
   transcoding: ChannelTranscodingOptionsSchema.optional(),
   watermark: WatermarkSchema.optional(),
-  subtitles: z.object({
-    enabled: z.boolean(),
-  }),
+  subtitles: SubtitlesSchema.optional(),
   onDemand: z.object({
     enabled: z.boolean(),
   }),

@@ -204,6 +204,14 @@ export class MediaSourceDB {
     return newServer?.uuid;
   }
 
+  async getMediaSourceById(id: string): Promise<MediaSource | undefined> {
+    return getDatabase()
+      .selectFrom('mediaSource')
+      .selectAll()
+      .where('mediaSource.uuid', '=', id)
+      .executeTakeFirst();
+  }
+
   // private async removeDanglingPrograms(mediaSource: MediaSource) {
   //   const knownProgramIds = await directDbAccess()
   //     .selectFrom('programExternalId as p1')
