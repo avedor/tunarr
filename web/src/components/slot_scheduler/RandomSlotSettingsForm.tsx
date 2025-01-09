@@ -12,6 +12,7 @@ import {
   Button,
   Divider,
   FormControl,
+  FormControlLabel,
   FormGroup,
   FormHelperText,
   Grid2 as Grid,
@@ -20,7 +21,7 @@ import {
   Select,
   Typography,
 } from '@mui/material';
-import { scheduleRandomSlots } from '@tunarr/shared';
+import { RandomSlotScheduler } from '@tunarr/shared';
 import { RandomSlotSchedule } from '@tunarr/types/api';
 import { useToggle } from '@uidotdev/usehooks';
 import dayjs from 'dayjs';
@@ -28,7 +29,10 @@ import { useSnackbar } from 'notistack';
 import pluralize from 'pluralize';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RotatingLoopIcon } from '../base/LoadingIcon';
-import { NumericFormControllerText } from '../util/TypedController';
+import {
+  CheckboxFormController,
+  NumericFormControllerText,
+} from '../util/TypedController';
 
 const distributionOptions: DropdownOption<string>[] = [
   { value: 'uniform', description: 'Uniform' },
@@ -50,7 +54,7 @@ export const RandomSlotSettingsForm = ({
   onCalculateEnd,
 }: Props) => {
   const { control, getValues, watch } = useFormContext<RandomSlotForm>();
-  const padTime = watch('padMs');
+  const [padTime, distributionType] = watch(['padMs', 'randomDistribution']);
 
   const { materializeOriginalProgramList } = useChannelEditorLazy();
   const snackbar = useSnackbar();
@@ -78,37 +82,12 @@ export const RandomSlotSettingsForm = ({
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    // let buf: UIChannelProgram[] = [];
-    // let offset = 0,
-    // index = 0;
-
     try {
-      const previewPrograms = await scheduleRandomSlots(
-        {
-          ...getValues(),
-          timeZoneOffset: new Date().getTimezoneOffset(),
-          type: 'random',
-        },
-        materializeOriginalProgramList(),
-        now,
-      );
-      // for await (const program of schedulePreviewGenerator) {
-      //   buf.push({
-      //     ...program,
-      //     originalIndex: index,
-      //     startTimeOffset: offset,
-      //   });
-
-      //   offset += program.duration;
-      //   index++;
-
-      //   // TODO: Look into if we really want this...
-      //   if (buf.length % 10000 === 0) {
-      //     appendToCurrentLineup(buf);
-      //     buf = [];
-      //   }
-      // }
-      // appendToCurrentLineup(buf);
+      const previewPrograms = new RandomSlotScheduler({
+        ...getValues(),
+        timeZoneOffset: new Date().getTimezoneOffset(),
+        type: 'random',
+      }).generateSchedule(materializeOriginalProgramList(), now);
       setCurrentLineup(previewPrograms);
       performance.mark('guide-end');
       const { duration: ms } = performance.measure(
@@ -251,6 +230,28 @@ export const RandomSlotSettingsForm = ({
             </FormHelperText>
           </FormGroup>
         </Grid>
+        {distributionType === 'weighted' && (
+          <Grid size={{ sm: 12, md: 6 }}>
+            <FormGroup row>
+              <FormControlLabel
+                control={
+                  <CheckboxFormController
+                    control={control}
+                    name="lockWeights"
+                  />
+                }
+                label="Lock Weights"
+              />
+
+              <FormHelperText sx={{ ml: 1 }}>
+                If true, adjusting the weight of one slot will scale the weights
+                of other slots such that all weights total 100%. Otherwise,
+                weights can be adjusted freely and the weight of each slot is
+                only relative to the total weight.
+              </FormHelperText>
+            </FormGroup>
+          </Grid>
+        )}
       </Grid>
       <Divider sx={{ my: 4 }} />
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>

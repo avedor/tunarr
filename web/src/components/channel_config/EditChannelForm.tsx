@@ -85,7 +85,7 @@ export function EditChannelForm({
   isNew,
   initialTab,
 }: EditChannelFormProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/channels/$channelId/edit' });
   const [currentTab, setCurrentTab] = useState<EditChannelTabs>(
     initialTab ?? 'properties',
   );
@@ -93,7 +93,6 @@ export function EditChannelForm({
   const formMethods = useForm<SaveChannelRequest>({
     mode: 'onChange',
     // Change this so we only load the form on initial...
-     
     defaultValues: getDefaultFormValues(channel),
   });
 

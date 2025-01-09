@@ -12,7 +12,7 @@ import { LoggerFactory } from '@/util/logging/LoggerFactory.ts';
 import { MutexMap } from '@/util/mutexMap.ts';
 import { Timer } from '@/util/perf.ts';
 import { booleanToNumber } from '@/util/sqliteUtil.ts';
-import { scheduleRandomSlots, scheduleTimeSlots } from '@tunarr/shared';
+import { RandomSlotScheduler, scheduleTimeSlots } from '@tunarr/shared';
 import { forProgramType, seq } from '@tunarr/shared/util';
 import {
   ChannelProgram,
@@ -638,7 +638,7 @@ export class ChannelDB {
 
     const updateChannel = async (
       lineup: readonly LineupItem[],
-      startTime: number,
+      startTime?: number,
     ) => {
       return await getDatabase()
         .transaction()
@@ -751,7 +751,7 @@ export class ChannelDB {
         createNewLineup(programs, lineupItems),
       );
       const updatedChannel = await this.timer.timeAsync('updateChannel', () =>
-        updateChannel(newLineupItems, dayjs().unix() * 1000),
+        updateChannel(newLineupItems),
       );
 
       await this.timer.timeAsync('saveLineup', () =>
@@ -797,7 +797,10 @@ export class ChannelDB {
       } else {
         const start = dayjs.tz();
         startTime = +start;
-        programs = await scheduleRandomSlots(req.schedule, req.programs, start);
+        programs = new RandomSlotScheduler(req.schedule).generateSchedule(
+          req.programs,
+          start,
+        );
       }
 
       const newLineup = await createNewLineup(programs);

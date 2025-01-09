@@ -1,8 +1,12 @@
 import { AddRandomSlotButton } from '@/components/slot_scheduler/AddRandomSlotButton';
 import { ClearSlotsButton } from '@/components/slot_scheduler/ClearSlotsButton.tsx';
 import { EditRandomSlotDialogContent } from '@/components/slot_scheduler/EditRandomSlotDialogContent';
+import { RandomSlotPresetButton } from '@/components/slot_scheduler/RandomSlotPresetButton.tsx';
 import { RandomSlotWarningsDialog } from '@/components/slot_scheduler/RandomSlotWarningsDialog';
-import { RandomSlotsWeightAdjustDialog } from '@/components/slot_scheduler/RandomSlotsWeightAdjustDialog';
+import {
+  RandomSlotsWeightAdjustDialog,
+  UnlockedWeightScale,
+} from '@/components/slot_scheduler/RandomSlotsWeightAdjustDialog';
 import {
   RandomSlotTableRowType,
   SlotWarning,
@@ -26,18 +30,19 @@ import {
 import { VisibilityState } from '@tanstack/react-table';
 import { seq } from '@tunarr/shared/util';
 import { RandomSlot, RandomSlotProgramming } from '@tunarr/types/api';
-import { useToggle } from '@uidotdev/usehooks';
+import { usePrevious, useToggle } from '@uidotdev/usehooks';
 import dayjs from 'dayjs';
 import {
   capitalize,
   filter,
-  find,
   floor,
   isEmpty,
   isNil,
   map,
+  maxBy,
   nth,
   round,
+  sum,
   uniq,
 } from 'lodash-es';
 import {
@@ -49,10 +54,12 @@ import {
 } from 'material-react-table';
 import pluralize from 'pluralize';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { P, match } from 'ts-pattern';
 
 export const RandomSlotTable = () => {
   const { slotArray, getValues, watch, setValue } = useRandomSlotFormContext();
-  const programOptions = useSlotProgramOptions();
+  const { dropdownOpts: programOptions, nameById: programOptionNameById } =
+    useSlotProgramOptions();
 
   const slotIds = useMemo(
     () =>
@@ -85,26 +92,44 @@ export const RandomSlotTable = () => {
     'slots',
     'randomDistribution',
   ]);
+  const prevDistributionType = usePrevious(distributionType);
 
   useEffect(() => {
     const sub = watch((value, { name }) => {
-      if (name === 'randomDistribution') {
-        if (value.randomDistribution) {
-          const newWeight = round(100 / currentSlots.length, 2);
-          setValue(
-            'slots',
-            map(currentSlots, (slot) => ({ ...slot, weight: newWeight })),
-            { shouldDirty: true },
-          );
-          setColumnVisibility((prev) => ({
-            ...prev,
-            weight: value.randomDistribution === 'weighted',
-          }));
-        }
+      if (name === 'randomDistribution' || name === 'lockWeights') {
+        match([value.randomDistribution, value.lockWeights])
+          .with([P.string, true], () => {
+            const newWeight = round(100 / currentSlots.length, 2);
+            setValue(
+              'slots',
+              map(currentSlots, (slot) => ({ ...slot, weight: newWeight })),
+              { shouldDirty: true },
+            );
+          })
+          .with([P.string, false], () => {
+            const maxWeight =
+              maxBy(currentSlots, (slot) => slot.weight)?.weight ?? 100.0;
+            setValue(
+              'slots',
+              map(currentSlots, (slot) => ({
+                ...slot,
+                weight: Math.ceil(
+                  (UnlockedWeightScale * slot.weight) / maxWeight,
+                ),
+              })),
+              { shouldDirty: true },
+            );
+          })
+          .otherwise(() => {});
       }
+
+      setColumnVisibility((prev) => ({
+        ...prev,
+        weight: value.randomDistribution === 'weighted',
+      }));
     });
     return () => sub.unsubscribe();
-  }, [currentSlots, setValue, watch]);
+  }, [currentSlots, prevDistributionType, setValue, watch]);
 
   const columns = useMemo<MRT_ColumnDef<RandomSlotTableRowType>[]>(() => {
     return [
@@ -144,14 +169,37 @@ export const RandomSlotTable = () => {
         enableColumnActions: false,
       },
       {
-        header: 'Duration',
-        accessorKey: 'durationMs',
+        header: 'Type',
+        accessorKey: 'durationSpec.type',
         Cell: ({ cell }) => {
+          const value = cell.getValue<string>();
+          return capitalize(value);
+        },
+        size: 100,
+        grow: false,
+      },
+      {
+        header: 'Duration',
+        id: 'duration',
+        accessorFn: (slot) => {
+          switch (slot.durationSpec.type) {
+            case 'fixed':
+              return slot.durationSpec.durationMs;
+            case 'dynamic':
+              return slot.durationSpec.programCount;
+          }
+        },
+        Cell: ({ cell, row }) => {
           const value = cell.getValue<number>();
-          return betterHumanize(dayjs.duration(value), {
-            exact: true,
-            style: 'full',
-          });
+          switch (row.original.durationSpec.type) {
+            case 'fixed':
+              return betterHumanize(dayjs.duration(value), {
+                exact: true,
+                style: 'full',
+              });
+            case 'dynamic':
+              return `${value} ${pluralize('program', value)}`;
+          }
         },
         size: 100,
         grow: false,
@@ -162,21 +210,7 @@ export const RandomSlotTable = () => {
         enableEditing: true,
         Cell: ({ cell }) => {
           const value = cell.getValue<RandomSlotProgramming>();
-          switch (value.type) {
-            case 'movie':
-              return 'Movie';
-            case 'show':
-              return find(programOptions, { showId: value.showId })
-                ?.description;
-            case 'flex':
-              return 'Flex';
-            case 'redirect':
-              return find(programOptions, { channelId: value.channelId })
-                ?.description;
-            case 'custom-show':
-              return find(programOptions, { customShowId: value.customShowId })
-                ?.description;
-          }
+          return programOptionNameById[getRandomSlotId(value)];
         },
         grow: true,
         size: 350,
@@ -191,7 +225,13 @@ export const RandomSlotTable = () => {
               return null;
             case 'show':
             case 'custom-show':
-              return capitalize(originalRow.order);
+              switch (originalRow.order) {
+                case 'next':
+                case 'shuffle':
+                  return capitalize(originalRow.order);
+                case 'ordered_shuffle':
+                  return 'Ordered Shuffle';
+              }
           }
         },
         id: 'programOrder',
@@ -228,7 +268,7 @@ export const RandomSlotTable = () => {
         Cell: ({ cell }) => `${cell.getValue<number>()}%`,
       },
     ];
-  }, [programOptions]);
+  }, [programOptionNameById]);
 
   const onDeleteSlot = useCallback(
     (index: number) => {
@@ -284,28 +324,33 @@ export const RandomSlotTable = () => {
   const detailsBySlotId = useScheduledSlotProgramDetails(slotIds);
 
   const rows = useMemo<RandomSlotTableRowType[]>(() => {
+    const totalWeight = sum(map(slotArray.fields, 'weight'));
     return map(slotArray.fields, (slot) => {
       const warnings: SlotWarning[] = [];
       const slotId = getRandomSlotId(slot.programming);
       const slotDetails = detailsBySlotId[slotId];
       let programCount = 0;
       if (slotDetails) {
-        const overDuration = filter(
-          slotDetails.programDurations,
-          ({ duration }) => duration > slot.durationMs,
-        );
+        const durationSpec = slot.durationSpec;
+        if (durationSpec.type === 'fixed') {
+          const overDuration = filter(
+            slotDetails.programDurations,
+            ({ duration }) => duration > durationSpec.durationMs,
+          );
 
-        if (overDuration.length > 0) {
-          warnings.push({
-            type: 'program_too_long',
-            programs: overDuration,
-          });
+          if (overDuration.length > 0) {
+            warnings.push({
+              type: 'program_too_long',
+              programs: overDuration,
+            });
+          }
         }
 
         programCount = slotDetails.programCount;
       }
       return {
         ...slot,
+        weight: round((slot.weight / totalWeight) * 100.0, 2),
         programCount,
         warnings,
       } satisfies RandomSlotTableRowType;
@@ -346,6 +391,7 @@ export const RandomSlotTable = () => {
               Adjust Weights
             </Button>
           )}
+          <RandomSlotPresetButton />
           <ClearSlotsButton
             fields={slotArray.fields}
             remove={slotArray.remove}
