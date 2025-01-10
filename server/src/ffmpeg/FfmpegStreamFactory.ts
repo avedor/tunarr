@@ -15,7 +15,6 @@ import { FfmpegTranscodeSession } from './FfmpegTrancodeSession.ts';
 import {
   AudioStream,
   StillImageStream,
-  SubtitlesStream,
   VideoStream,
 } from './builder/MediaStream.ts';
 import {
@@ -37,14 +36,12 @@ import {
 } from './builder/input/AudioInputSource.ts';
 import { ConcatInputSource } from './builder/input/ConcatInputSource.ts';
 import { LavfiVideoInputSource } from './builder/input/LavfiVideoInputSource.ts';
-import { SubtitlesInputSource } from './builder/input/SubtitlesInputSource.ts';
 import { VideoInputSource } from './builder/input/VideoInputSource.ts';
 import { WatermarkInputSource } from './builder/input/WatermarkInputSource.ts';
 import { PipelineBuilderFactory } from './builder/pipeline/PipelineBuilderFactory.ts';
 import { AudioState } from './builder/state/AudioState.ts';
 import { FfmpegState } from './builder/state/FfmpegState.ts';
 import { FrameState } from './builder/state/FrameState.ts';
-import { SubtitlesState } from './builder/state/SubtitlesState.ts';
 import { FrameSize } from './builder/types.ts';
 import { ConcatOptions, StreamSessionOptions } from './ffmpeg.ts';
 import { HlsWrapperOptions, IFFMPEG } from './ffmpegBase.ts';
@@ -244,7 +241,6 @@ export class FfmpegStreamFactory extends IFFMPEG {
       ...pipeline.inputs,
       videoInput: null,
       audioInput: null,
-      subtitlesInput: null,
     });
 
     return new FfmpegTranscodeSession(
@@ -371,34 +367,6 @@ export class FfmpegStreamFactory extends IFFMPEG {
       });
     }
 
-    const subtitlesState = SubtitlesState.create({
-      subtitlesEncoder: playbackParams.subtitlesFormat,
-      subtitlesLanguage: playbackParams.subtitlesLanguage,
-    });
-
-    let subtitlesInput: Nullable<SubtitlesInputSource> = null;
-    if (isDefined(streamDetails.subtitlesDetails)) {
-      const subtitlesStream =
-        find(streamDetails.subtitlesDetails, { selected: true }) ??
-        find(streamDetails.subtitlesDetails, { default: true }) ??
-        first(streamDetails.subtitlesDetails);
-      const subtitleStreamIndex = isNonEmptyString(subtitlesStream.index)
-        ? parseInt(subtitlesStream.index)
-        : 0;
-
-      subtitlesInput = new SubtitlesInputSource(
-        streamSource,
-        [
-          SubtitlesStream.create({
-            index: isNaN(subtitleStreamIndex) ? 0 : subtitleStreamIndex,
-            codec: subtitlesStream.codec ?? 'unknown',
-            language: subtitlesStream.language ?? 'und',
-          }),
-        ],
-        subtitlesState,
-      );
-    }
-
     let watermarkSource: Nullable<WatermarkInputSource> = null;
     if (streamMode !== ChannelStreamModes.HlsDirect && watermark?.enabled) {
       const watermarkUrl = watermark.url ?? makeLocalUrl('/images/tunarr.png');
@@ -420,7 +388,6 @@ export class FfmpegStreamFactory extends IFFMPEG {
       .setHardwareAccelerationMode(this.ffmpegSettings.hardwareAccelerationMode)
       .setVideoInputSource(videoInput)
       .setAudioInputSource(audioInput)
-      .setSubtitlesInputSource(subtitlesInput)
       .setWatermarkInputSource(watermarkSource)
       .build();
 
@@ -664,14 +631,11 @@ export class FfmpegStreamFactory extends IFFMPEG {
         break;
     }
 
-    let subtitlesInput: SubtitlesInputSource;
-
     const builder = await new PipelineBuilderFactory()
       .builder(this.transcodeConfig)
       .setHardwareAccelerationMode(this.ffmpegSettings.hardwareAccelerationMode)
       .setVideoInputSource(offlineInput)
       .setAudioInputSource(audioInput)
-      .setSubtitlesInputSource(subtitlesInput)
       .build();
 
     const pipeline = builder.build(

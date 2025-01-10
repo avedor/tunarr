@@ -99,6 +99,14 @@ export class JellyfinProgramStream extends ProgramStream {
         : undefined;
     }
 
+    const sourcePath = stream.streamSource.path;
+    let subtitlesPath: Nullable<string> = null;
+    if (sourcePath.replace(/\.[^/.]+$/, '.srt')) {
+      subtitlesPath = sourcePath.replace(/\.[^/.]+$/, '.srt');
+    } else {
+      this.logger.warn(`No subtitle file found at ${subtitlesPath}`);
+    }
+
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 
     const ffmpegOutStream = await this.ffmpeg.createStreamSession({
@@ -110,6 +118,7 @@ export class JellyfinProgramStream extends ProgramStream {
           ? dayjs.duration(lineupItem.duration)
           : dayjs.duration(lineupItem.streamDuration ?? lineupItem.duration),
       watermark,
+      subtitles: subtitlesPath ? subtitlesPath : undefined, // Pass subtitle file if it exists
       realtime: this.context.realtime,
       extraInputHeaders: {},
       outputFormat: this.outputFormat,

@@ -79,6 +79,7 @@ export const OnDemandChannelConfigSchema = z.object({
 
 export type OnDemandChannelConfig = z.infer<typeof OnDemandChannelConfigSchema>;
 
+<<<<<<< HEAD
 export const SubtitlesConfigSchema = z.object({
   enabled: z.boolean().default(false).catch(false),
   state: z
@@ -90,6 +91,8 @@ export const SubtitlesConfigSchema = z.object({
 
 export type SubtitlesConfig = z.infer<typeof SubtitlesConfigSchema>;
 
+=======
+>>>>>>> 2dcb4235 (feat: remove cruft)
 export const CurrentLineupSchemaVersion = 1;
 
 export const LineupSchema = z.object({
@@ -148,10 +151,6 @@ export const LineupSchema = z.object({
   // OnDemand configuration for this channel. If empty, the channel
   // is not configured as on-demand.
   onDemandConfig: OnDemandChannelConfigSchema.optional(),
-
-  // Subtitle configuration for this channel. If empty, the channel
-  // has subtitles turned off.
-  subtitlesConfig: SubtitlesConfigSchema.optional(),
 });
 
 export type Lineup = z.infer<typeof LineupSchema>;

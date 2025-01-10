@@ -21,7 +21,6 @@ import { YadifCudaFilter } from '@/ffmpeg/builder/filter/nvidia/YadifCudaFilter.
 import { OverlayWatermarkFilter } from '@/ffmpeg/builder/filter/watermark/OverlayWatermarkFilter.ts';
 import { AudioInputSource } from '@/ffmpeg/builder/input/AudioInputSource.ts';
 import { ConcatInputSource } from '@/ffmpeg/builder/input/ConcatInputSource.ts';
-import { SubtitlesInputSource } from '../../input/SubtitlesInputSource.ts';
 import { VideoInputSource } from '@/ffmpeg/builder/input/VideoInputSource.ts';
 import { WatermarkInputSource } from '@/ffmpeg/builder/input/WatermarkInputSource.ts';
 import { PixelFormatOutputOption } from '@/ffmpeg/builder/options/OutputOption.ts';
@@ -54,14 +53,12 @@ export class NvidiaPipelineBuilder extends SoftwarePipelineBuilder {
     binaryCapabilities: FfmpegCapabilities,
     videoInputFile: Nullable<VideoInputSource>,
     audioInputFile: Nullable<AudioInputSource>,
-    subtitlesInputFile: Nullable<SubtitlesInputSource>,
     concatInputSource: Nullable<ConcatInputSource>,
     watermarkInputSource: Nullable<WatermarkInputSource>,
   ) {
     super(
       videoInputFile,
       audioInputFile,
-      subtitlesInputFile,
       watermarkInputSource,
       concatInputSource,
       binaryCapabilities,

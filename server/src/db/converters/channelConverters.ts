@@ -33,9 +33,6 @@ export const dbChannelToApiChannel = ({
     transcoding: nilToUndefined(channel.transcoding),
     duration: channel.duration,
     stealth: channel.stealth === 1,
-    subtitles: {
-      enabled: isDefined(lineup.subtitlesConfig),
-    },
     onDemand: {
       enabled: isDefined(lineup.onDemandConfig),
     },

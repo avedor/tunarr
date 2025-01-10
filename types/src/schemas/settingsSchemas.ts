@@ -94,7 +94,6 @@ export const FfmpegSettingsSchema = z.object({
     .union([z.literal('h264'), z.literal('hevc'), z.literal('mpeg2')])
     .default(DefaultVideoFormat),
   audioEncoder: z.string().default('aac'),
-  subtitlesEncoder: z.string().default('srt'),
   targetResolution: ResolutionSchema.default({ widthPx: 1920, heightPx: 1080 }),
   videoBitrate: z.number().default(10000),
   videoBufferSize: z.number().default(1000),

@@ -14,8 +14,13 @@ import {
   ChannelStreamMode,
   FfmpegSettings,
   Resolution,
+<<<<<<< HEAD
   Watermark,
   Subtitles,
+=======
+  Subtitles,
+  Watermark,
+>>>>>>> 2dcb4235 (feat: remove cruft)
 } from '@tunarr/types';
 
 import { NvidiaHardwareCapabilitiesFactory } from '@/ffmpeg/builder/capabilities/NvidiaHardwareCapabilitiesFactory.ts';
@@ -146,12 +151,20 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
+<<<<<<< HEAD
   subtitles?: Subtitles;
+=======
+  subtitles: Subtitles;
+>>>>>>> 2dcb4235 (feat: remove cruft)
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
   ptsOffset?: number;
+<<<<<<< HEAD
   streamMode: ChannelStreamMode;
+=======
+  streamMode?: ChannelStreamMode;
+>>>>>>> 2dcb4235 (feat: remove cruft)
 };
 
 export type StreamSessionOptions = StreamOptions & {
@@ -345,6 +358,7 @@ export class FFMPEG implements IFFMPEG {
     duration,
     subtitles: enableSubs,
     watermark: enableIcon,
+    subtitles,
     realtime = true,
     outputFormat,
     ptsOffset,
@@ -355,9 +369,14 @@ export class FFMPEG implements IFFMPEG {
       streamDetails,
       startTime,
       duration,
+<<<<<<< HEAD
       realtime,
       enableSubs,
+=======
+>>>>>>> 2dcb4235 (feat: remove cruft)
       enableIcon,
+      subtitles,
+      realtime,
       outputFormat,
       ptsOffset ?? null,
     );
@@ -400,9 +419,14 @@ export class FFMPEG implements IFFMPEG {
       streamStats,
       undefined,
       streamStats.duration!,
+<<<<<<< HEAD
       true,
       /*subtitles=*/ undefined,
+=======
+>>>>>>> 2dcb4235 (feat: remove cruft)
       /*watermark=*/ undefined,
+      /*subtitles=*/ undefined,
+      true,
       outputFormat,
       null,
     );
@@ -424,9 +448,12 @@ export class FFMPEG implements IFFMPEG {
       streamStats,
       undefined,
       duration,
+      undefined,
+      undefined,
+<<<<<<< HEAD
+=======
       true,
-      undefined,
-      undefined,
+>>>>>>> 2dcb4235 (feat: remove cruft)
       outputFormat,
       null,
     );
@@ -437,9 +464,14 @@ export class FFMPEG implements IFFMPEG {
     streamStats: Maybe<StreamDetails>,
     startTime: Maybe<Duration>,
     duration: Duration,
+<<<<<<< HEAD
     realtime: boolean,
     subtitles: Maybe<Subtitles>,
+=======
+>>>>>>> 2dcb4235 (feat: remove cruft)
     watermark: Maybe<Watermark>,
+    subtitles: Maybe<Subtitles>,
+    realtime: boolean,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
   ): Promise<Maybe<FfmpegTranscodeSession>> {
@@ -736,6 +768,10 @@ export class FFMPEG implements IFFMPEG {
       // HACK: We know these will be defined already if we get this far
       iW = iW!;
       iH = iH!;
+    }
+
+    if (subtitles?.enabled && !isNil(subtitles?.path)) {
+      ffmpegArgs.push(`-vf`, `${subtitles.path}`);
     }
 
     if (doOverlay && !isNil(watermark?.url)) {

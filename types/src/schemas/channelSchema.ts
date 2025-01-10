@@ -8,10 +8,9 @@ import {
 import { ChannelIconSchema } from './utilSchemas.js';
 
 export const SubtitlesSchema = z.object({
-  url: z.string().optional(),
-  enabled: z.boolean(),
+  path: z.string().optional(),
+  enabled: z.boolean().default(false),
   position: z.union([z.literal('top'), z.literal('bottom')]).default('bottom'),
-  opacity: z.number().min(0).max(100).int().optional().catch(100).default(100),
 });
 
 export const WatermarkSchema = z.object({

@@ -444,7 +444,6 @@ export class LegacyDbMigrator {
               videoFormat,
               hardwareAccelerationMode: hwAccel,
               audioEncoder: ffmpegSettings['audioEncoder'] as string,
-              subtitlesEncoder: ffmpegSettings['subtitlesEncoder'] as string,
               targetResolution:
                 tryParseResolution(
                   ffmpegSettings['targetResolution'] as string,

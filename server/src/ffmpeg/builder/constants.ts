@@ -25,11 +25,6 @@ export const AudioFormats = {
   Flac: 'flac',
 } as const;
 
-export const SubtitlesFormats = {
-  Srt: 'srt',
-  AdvancedSubStationAlpha: 'ass',
-} as const;
-
 export const OutputLocation = {
   Stdout: 'stdout',
 } as const;

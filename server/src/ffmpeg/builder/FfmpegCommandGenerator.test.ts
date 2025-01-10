@@ -2,12 +2,7 @@ import { bootstrapTunarr } from '@/bootstrap.ts';
 import { setGlobalOptions } from '@/globals.ts';
 import tmp from 'tmp';
 import { FfmpegCommandGenerator } from './FfmpegCommandGenerator.ts';
-import {
-  AudioStream,
-  StillImageStream,
-  SubtitlesStream,
-  VideoStream,
-} from './MediaStream.ts';
+import { AudioStream, StillImageStream, VideoStream } from './MediaStream.ts';
 import { VideoFormats } from './constants.ts';
 import {
   PixelFormat,
@@ -15,12 +10,10 @@ import {
   PixelFormatYuv420P10Le,
 } from './format/PixelFormat.ts';
 import { AudioInputSource } from './input/AudioInputSource.ts';
-import { SubtitlesInputSource } from './input/SubtitlesInputSource.ts';
 import { VideoInputSource } from './input/VideoInputSource.ts';
 import { WatermarkInputSource } from './input/WatermarkInputSource.ts';
 import { PipelineBuilderFactory } from './pipeline/PipelineBuilderFactory.ts';
 import { AudioState } from './state/AudioState.ts';
-import { SubtitlesState } from './state/SubtitlesState.ts';
 import { FfmpegState } from './state/FfmpegState.ts';
 import { FrameState } from './state/FrameState.ts';
 import { FrameSize } from './types.ts';
@@ -78,10 +71,6 @@ describe('FfmpegCommandGenerator', () => {
       audioDuration: 11_000,
     });
 
-    const subtitleState = SubtitlesState.create({
-      subtitlesEncoder: 'srt',
-    });
-
     const target = FrameSize.withDimensions(1280, 720);
 
     const desiredState = new FrameState({
@@ -109,12 +98,6 @@ describe('FfmpegCommandGenerator', () => {
       audioState,
     );
 
-    const subtitlesInputFile = new SubtitlesInputSource(
-      videoInputFile.path,
-      [SubtitlesStream.create({ index: 1, codec: 'srt' })],
-      subtitleState,
-    );
-
     const watermarkInputFile = new WatermarkInputSource(
       'http://localhost:8000/images/tunarr.png',
       StillImageStream.create({
@@ -137,7 +120,6 @@ describe('FfmpegCommandGenerator', () => {
       .setHardwareAccelerationMode('vaapi')
       .setVideoInputSource(videoInputFile)
       .setAudioInputSource(audioInputFile)
-      .setSubtitlesInputSource(subtitlesInputFile)
       .setWatermarkInputSource(watermarkInputFile)
       .build();
 
@@ -152,7 +134,6 @@ describe('FfmpegCommandGenerator', () => {
     const result = generator.generateArgs(
       videoInputFile,
       audioInputFile,
-      subtitlesInputFile,
       watermarkInputFile,
       steps,
     );

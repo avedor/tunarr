@@ -59,11 +59,6 @@ export type AudioStreamDetails = {
 
 export type SubtitlesStreamDetails = {
   index?: string;
-  channels?: number;
-  codec?: string;
-  bitrate?: number;
-  profile?: string;
-  default?: boolean;
   selected?: boolean;
   title?: string;
   language?: string;
