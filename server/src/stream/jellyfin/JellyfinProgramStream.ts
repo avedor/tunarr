@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import { ChannelDB } from '@/db/ChannelDB.ts';
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { isContentBackedLineupIteam } from '@/db/derived_types/StreamLineup.ts';
@@ -99,13 +100,16 @@ export class JellyfinProgramStream extends ProgramStream {
         : undefined;
     }
 
-    const sourcePath = stream.streamSource.path;
+    const sourcePath = stream.streamDetails.directFilePath;
+    console.log(sourcePath);
     let subtitlesPath: Nullable<string> = null;
-    if (sourcePath.replace(/\.[^/.]+$/, '.srt')) {
+    if (sourcePath) {
       subtitlesPath = sourcePath.replace(/\.[^/.]+$/, '.srt');
-    } else {
-      this.logger.warn(`No subtitle file found at ${subtitlesPath}`);
+      if (!existsSync(subtitlesPath)) {
+        subtitlesPath = null; // Set to null if the file doesn't exist
+      }
     }
+    console.log(subtitlesPath);
 
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 

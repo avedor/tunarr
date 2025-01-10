@@ -38,7 +38,7 @@ export type GridItemMetadata = {
   childCount: number | null;
   aspectRatio: 'portrait' | 'landscape' | 'square';
   title: string;
-  subtitles: JSX.Element | string | null;
+  subtitle: JSX.Element | string | null;
   thumbnailUrl: string;
   selectedMedia: SelectedMedia;
 };
@@ -75,7 +75,7 @@ const MediaGridItemInner = <T,>(
       selectedMedia: selectedMediaItem,
       aspectRatio,
       title,
-      subtitles,
+      subtitle,
       childCount,
     },
     style,
@@ -236,7 +236,7 @@ const MediaGridItemInner = <T,>(
             ))}
           <ImageListItemBar
             title={title}
-            subtitles={subtitles}
+            subtitle={subtitle}
             position="below"
             actionIcon={
               <IconButton

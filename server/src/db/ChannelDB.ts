@@ -219,11 +219,7 @@ type UpdateChannelLineupRequest = MarkOptional<
     | 'schedulingOperations'
     | 'pendingPrograms'
   >,
-  | 'version'
-  | 'onDemandConfig'
-  | 'subtitlesConfig'
-  | 'items'
-  | 'startTimeOffsets'
+  'version' | 'onDemandConfig' | 'items' | 'startTimeOffsets'
 >;
 export class ChannelDB {
   private logger = LoggerFactory.child({
@@ -395,13 +391,6 @@ export class ChannelDB {
 
     await this.createLineup(channel.uuid);
 
-    if (isDefined(createReq.subtitles) && createReq.subtitles.enabled) {
-      const db = await this.getFileDb(channel.uuid);
-      await db.update((lineup) => {
-        lineup.subtitlesConfig.enabled = false;
-      });
-    }
-
     if (isDefined(createReq.onDemand) && createReq.onDemand.enabled) {
       const db = await this.getFileDb(channel.uuid);
       await db.update((lineup) => {
@@ -481,17 +470,6 @@ export class ChannelDB {
             .executeTakeFirstOrThrow();
         }
       });
-
-    if (isDefined(updateReq.subtitles)) {
-      const db = await this.getFileDb(id);
-      await db.update((lineup) => {
-        if (updateReq.subtitles?.enabled ?? false) {
-          lineup.subtitlesConfig.enabled = false;
-        } else {
-          delete lineup['subtitlesConfig'];
-        }
-      });
-    }
 
     if (isDefined(updateReq.onDemand)) {
       const db = await this.getFileDb(id);
@@ -761,11 +739,6 @@ export class ChannelDB {
             ? {
                 ...lineup.onDemandConfig,
                 cursor: 0,
-              }
-            : undefined,
-          subtitlesConfig: isDefined(lineup.subtitlesConfig)
-            ? {
-                ...lineup.subtitlesConfig,
               }
             : undefined,
         }),

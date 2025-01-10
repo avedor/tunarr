@@ -14,7 +14,6 @@ import {
   ChannelStreamMode,
   FfmpegSettings,
   Resolution,
-  Subtitles,
   Watermark,
 } from '@tunarr/types';
 
@@ -146,7 +145,7 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
-  subtitles?: Subtitles;
+  subtitles?: string;
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
@@ -343,7 +342,6 @@ export class FFMPEG implements IFFMPEG {
     streamDetails,
     startTime,
     duration,
-    subtitles: enableSubs,
     watermark: enableIcon,
     subtitles,
     realtime = true,
@@ -439,7 +437,8 @@ export class FFMPEG implements IFFMPEG {
     startTime: Maybe<Duration>,
     duration: Duration,
     watermark: Maybe<Watermark>,
-    subtitles: Maybe<Subtitles>,
+    //subtitles: Maybe<Subtitles>,
+    subtitles: Maybe<string>,
     realtime: boolean,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
@@ -739,8 +738,9 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-    if (subtitles?.enabled && !isNil(subtitles?.path)) {
-      ffmpegArgs.push(`-vf`, `${subtitles.path}`);
+    // if (subtitles?.enabled && !isNil(subtitles?.path)) {
+    if (!isNil(subtitles)) {
+      ffmpegArgs.push(`-i`, `${subtitles}`);
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -750,10 +750,6 @@ export class FFMPEG implements IFFMPEG {
       ffmpegArgs.push(`-i`, `${watermark.url}`);
       overlayFile = inputFiles++;
       this.ensureResolution = true;
-    }
-
-    if (!isNil(subtitles?.url)) {
-      ffmpegArgs.push(`-i`, `${subtitles.url}`);
     }
 
     // Resolution fix: Add scale filter, current stream becomes [siz]

@@ -138,10 +138,6 @@ export const streamApi: RouterPluginAsyncCallback = async (fastify) => {
 
       const session = sessionResult.get();
 
-      if (lineup.subtitlesConfig) {
-        await req.serverCtx.subtitlesService.resumeChannel(channel.uuid);
-      }
-
       if (lineup.onDemandConfig) {
         await req.serverCtx.onDemandChannelService.resumeChannel(channel.uuid);
       }
