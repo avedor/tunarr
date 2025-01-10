@@ -58,16 +58,6 @@ export const FfprobeAudioStreamSchema = BaseFfprobeMediaStreamSchema.extend({
 
 export type FfprobeAudioStream = z.infer<typeof FfprobeAudioStreamSchema>;
 
-export const FfprobeSubtitlesStreamSchema = BaseFfprobeMediaStreamSchema.extend(
-  {
-    codec_type: z.literal('subtitles'),
-  },
-);
-
-export type FfprobeSubtitlesStream = z.infer<
-  typeof FfprobeSubtitlesStreamSchema
->;
-
 function parsePossibleFractionToFloat(s: string) {
   if (s.includes('/')) {
     const [num, den] = split(s, '/', 2);
@@ -84,7 +74,6 @@ function parsePossibleFractionToFloat(s: string) {
 export const FfprobeMediaStreamSchema = z.discriminatedUnion('codec_type', [
   FfprobeVideoStreamSchema,
   FfprobeAudioStreamSchema,
-  FfprobeSubtitlesStreamSchema,
 ]);
 
 export const FfprobeMediaFormatSchema = z.object({

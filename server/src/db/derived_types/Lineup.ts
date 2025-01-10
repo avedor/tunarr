@@ -79,20 +79,6 @@ export const OnDemandChannelConfigSchema = z.object({
 
 export type OnDemandChannelConfig = z.infer<typeof OnDemandChannelConfigSchema>;
 
-<<<<<<< HEAD
-export const SubtitlesConfigSchema = z.object({
-  enabled: z.boolean().default(false).catch(false),
-  state: z
-    .union([z.literal('paused'), z.literal('playing')])
-    .default('paused')
-    .catch('paused'),
-  cursor: z.number().nonnegative().default(0).catch(0),
-});
-
-export type SubtitlesConfig = z.infer<typeof SubtitlesConfigSchema>;
-
-=======
->>>>>>> 2dcb4235 (feat: remove cruft)
 export const CurrentLineupSchemaVersion = 1;
 
 export const LineupSchema = z.object({

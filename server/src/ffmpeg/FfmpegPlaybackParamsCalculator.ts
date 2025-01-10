@@ -38,10 +38,6 @@ export class FfmpegPlaybackParamsCalculator {
       audioChannels: this.transcodeConfig.audioChannels,
       audioSampleRate: this.transcodeConfig.audioSampleRate,
       hwAccel: this.transcodeConfig.hardwareAccelerationMode,
-<<<<<<< HEAD
-      //      subtitlesFormat: this.transcodeConfig.subtitlesFormat,
-=======
->>>>>>> 2dcb4235 (feat: remove cruft)
       videoFormat: this.transcodeConfig.videoFormat,
       videoBitrate: this.transcodeConfig.videoBitRate,
       videoBufferSize: this.transcodeConfig.videoBufferSize,
@@ -114,10 +110,6 @@ export class FfmpegPlaybackParamsCalculator {
       audioChannels: this.transcodeConfig.audioChannels,
       audioSampleRate: this.transcodeConfig.audioSampleRate,
       hwAccel: this.transcodeConfig.hardwareAccelerationMode,
-<<<<<<< HEAD
-      //      subtitlesFormat: this.transcodeConfig.subtitlesFormat,
-=======
->>>>>>> 2dcb4235 (feat: remove cruft)
       videoFormat: this.transcodeConfig.videoFormat,
       videoBitrate: this.transcodeConfig.videoBitRate,
       videoBufferSize: this.transcodeConfig.videoBufferSize,

@@ -19,7 +19,6 @@ export type StreamDetails = {
   // If defined, there is at least one video stream
   videoDetails?: [VideoStreamDetails, ...VideoStreamDetails[]];
   audioDetails?: [AudioStreamDetails, ...AudioStreamDetails[]];
-  subtitlesDetails?: [SubtitlesStreamDetails, ...SubtitlesStreamDetails[]];
 
   audioOnly?: boolean;
   placeholderImage?: string;
@@ -51,14 +50,6 @@ export type AudioStreamDetails = {
   bitrate?: number;
   profile?: string;
   default?: boolean;
-  selected?: boolean;
-  title?: string;
-  language?: string;
-  forced?: boolean;
-};
-
-export type SubtitlesStreamDetails = {
-  index?: string;
   selected?: boolean;
   title?: string;
   language?: string;

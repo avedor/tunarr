@@ -15,7 +15,6 @@ import { FileCacheService } from './services/FileCacheService.ts';
 import { HdhrService } from './services/HDHRService.ts';
 import { HealthCheckService } from './services/HealthCheckService.js';
 import { M3uService } from './services/M3UService.ts';
-import { SubtitlesService } from './services/SubtitlesService.ts';
 import { OnDemandChannelService } from './services/OnDemandChannelService.js';
 import { TVGuideService } from './services/TvGuideService.ts';
 import { XmlTvWriter } from './services/XmlTvWriter.ts';
@@ -27,7 +26,6 @@ import { StreamProgramCalculator } from './stream/StreamProgramCalculator.js';
 export class ServerContext {
   public readonly programConverter = new ProgramConverter();
   public readonly sessionManager: SessionManager;
-  public readonly subtitlesService: SubtitlesService;
   public readonly onDemandChannelService: OnDemandChannelService;
   public readonly healthCheckService: HealthCheckService;
 

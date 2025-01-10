@@ -28,13 +28,7 @@ export type HardwareAccelerationMode = TupleToUnion<
   typeof HardwareAccelerationModes
 >;
 
-export const StreamKinds = [
-  'audio',
-  'video',
-  'all',
-  'stillimage',
-  'subtitles',
-] as const;
+export const StreamKinds = ['audio', 'video', 'all', 'stillimage'] as const;
 
 export type StreamKind = TupleToUnion<typeof StreamKinds>;
 
