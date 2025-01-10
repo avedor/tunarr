@@ -103,42 +103,39 @@ export class JellyfinProgramStream extends ProgramStream {
     }
 
     const sourcePath = stream.streamDetails.directFilePath;
-    console.log(server.uri)
-    console.log(sourcePath);
-
-    const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
-    const adjacentItems = await jellyfinClient.getDirectoryContents(sourcePath);
-
-    console.log(adjacentItems)
-
-    // let subtitlesPath: Nullable<string> = null;
-
-    // if (sourcePath) {
-    //   const sourceDir = dirname(sourcePath);
-    //   console.log(`Source Directory: ${sourceDir}`);
-    // 
-    //   try {
-    //     // List all files in the directory
-    //     const dirContents = readdirSync(sourceDir);
-    //     console.log('Directory Contents:', dirContents);
-    // 
-    //     const baseName = sourcePath.replace(/\.[^/.]+$/, ''); // Strip the extension
-    //     console.log(`Base Name: ${baseName}`);
-    //     
-    //     const potentialSubtitles = dirContents.filter((file) =>
-    //       file.startsWith(baseName) && file.endsWith('.srt')
-    //     );
-    // 
-    //     // Use the first match, if available
-    //     if (potentialSubtitles.length > 0) {
-    //       subtitlesPath = join(sourceDir, potentialSubtitles[0]);
-    //     }
-    //   } catch (err) {
-    //     console.error(`Failed to read directory: ${sourceDir}`, err);
-    //   }
-    // }
+    let subtitlesPath: Nullable<string> = null;
     
-    // console.log(`Subtitles Path: ${subtitlesPath}`);
+    if (sourcePath) {
+      const sourceDir = dirname(sourcePath);
+      console.log(`Source Directory: ${sourceDir}`);
+    
+      try { 
+        const baseName = sourcePath.replace(/\.[^/.]+$/, ''); // Strip the extension
+        console.log(`Base Name: ${baseName}`);
+    
+        // List all files in the directory
+        const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
+        const adjacentItems = await jellyfinClient.getDirectoryContents(sourceDir);
+
+        console.log(Array.isArray(adjacentItems));
+        console.log(adjacentItems);
+    
+        // Filter for subtitles: match file names (without extensions) and look for .srt files
+        const potentialSubtitles = adjacentItems.filter((item) =>
+          item.Path.startsWith(baseName) && item.Path.endsWith('.srt')
+        );
+    
+        // Use the first match, if available
+        if (potentialSubtitles.length > 0) {
+          subtitlesPath = join(sourceDir, potentialSubtitles[0].Path); // Use Path here
+        }
+      } catch (err) {
+        console.error(`Failed to read directory: ${sourceDir}`, err);
+      }
+    }
+    
+    console.log(`Subtitles Path: ${subtitlesPath}`);
+    
 
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 

@@ -4,6 +4,7 @@ import { LoggerFactory } from '@/util/logging/LoggerFactory.ts';
 import { getTunarrVersion } from '@/util/version.js';
 import {
   JellyfinAuthenticationResult,
+  JellyfinDirItemsArrayResponse,
   JellyfinItem,
   JellyfinItemFields,
   JellyfinItemKind,
@@ -339,22 +340,41 @@ export class JellyfinApiClient extends BaseApiClient<JellyfinApiClientOptions> {
     return `${opts.uri}/Items/${opts.itemKey}/Images/Primary`;
   }
 
-  async getDirectoryContents(path: string) {
-    try {
-      // Use the doTypeCheckedGet method with the correct endpoint and path param
-      const response = await this.doTypeCheckedGet(
-        '/Environment/DirectoryContents',
-        JellyfinLibraryItemsResponse,
-        { params: { path } }
-      );
-      return response;
-    } catch (error) {
-      LoggerFactory.root.error(error, 'Error fetching directory contents', {
+async getDirectoryContents(path: string) {
+  try {
+    const response = await this.doTypeCheckedGet(
+      '/Environment/DirectoryContents',
+      JellyfinDirItemsArrayResponse,  // Expecting an array of JellyfinLibraryItem objects
+      {
+        params: {
+          path,
+          includeDirectories: true,
+          includeFiles: true,
+        },
+      }
+    );
+
+    // Check if response is an array
+    if (Array.isArray(response)) {
+      // If it's an array, extract only the 'Name' field
+      const names = response.map(item => item.Name);
+      return names;  // Return only the 'Name' values
+    } else {
+      // Handle the case where response is not an array
+      LoggerFactory.root.error('Unexpected response format', 'Response is not an array', {
         className: JellyfinApiClient.name,
       });
-      throw error;
+      throw new Error('Unexpected response format, expected an array');
     }
+
+  } catch (error) {
+    LoggerFactory.root.error(error, 'Error fetching directory contents', {
+      className: JellyfinApiClient.name,
+    });
+    throw error;
   }
+}
+
 
   protected override preRequestValidate(
     req: AxiosRequestConfig,

@@ -856,6 +856,22 @@ export type JellyfinLibraryItemsResponse = z.infer<
   typeof JellyfinLibraryItemsResponse
 >;
 
+// Define the schema for an individual directory item
+export const JellyfinDirItemsResponse = z.object({
+  Name: z.string(),   // The name of the item (e.g., file name)
+  Path: z.string(),   // The full path of the item
+  Type: z.enum(['File', 'Directory']),  // Type, which can be either 'File' or 'Directory'
+});
+
+// Now, we define the response as an array of `JellyfinDirItemsResponse`
+export const JellyfinDirItemsArrayResponse = z.array(JellyfinDirItemsResponse);
+
+// Type for an individual item
+export type JellyfinDirItem = z.infer<typeof JellyfinDirItemsResponse>;
+
+// Type for the array of items
+export type JellyfinDirItemsArrayResponse = z.infer<typeof JellyfinDirItemsArrayResponse>;
+
 const JellyfinSessionInfo = z
   .object({
     // PlayState: PlayerStateInfo.nullable().optional(),
