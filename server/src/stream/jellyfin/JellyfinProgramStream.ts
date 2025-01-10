@@ -1,4 +1,5 @@
-import { existsSync } from 'fs';
+import { dirname, join } from 'path';
+import { readdirSync } from 'fs';
 import { ChannelDB } from '@/db/ChannelDB.ts';
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { isContentBackedLineupIteam } from '@/db/derived_types/StreamLineup.ts';
@@ -18,6 +19,7 @@ import { LoggerFactory } from '@/util/logging/LoggerFactory.js';
 import dayjs from 'dayjs';
 import { isNil, isNull, isUndefined } from 'lodash-es';
 import { JellyfinStreamDetails } from './JellyfinStreamDetails.js';
+import { MediaSourceApiFactory } from '@/external/MediaSourceApiFactory.ts';
 
 export class JellyfinProgramStream extends ProgramStream {
   protected logger = LoggerFactory.child({
@@ -101,15 +103,42 @@ export class JellyfinProgramStream extends ProgramStream {
     }
 
     const sourcePath = stream.streamDetails.directFilePath;
+    console.log(server.uri)
     console.log(sourcePath);
-    let subtitlesPath: Nullable<string> = null;
-    if (sourcePath) {
-      subtitlesPath = sourcePath.replace(/\.[^/.]+$/, '.srt');
-      if (!existsSync(subtitlesPath)) {
-        subtitlesPath = null; // Set to null if the file doesn't exist
-      }
-    }
-    console.log(subtitlesPath);
+
+    const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
+    const adjacentItems = await jellyfinClient.getDirectoryContents(sourcePath);
+
+    console.log(adjacentItems)
+
+    // let subtitlesPath: Nullable<string> = null;
+
+    // if (sourcePath) {
+    //   const sourceDir = dirname(sourcePath);
+    //   console.log(`Source Directory: ${sourceDir}`);
+    // 
+    //   try {
+    //     // List all files in the directory
+    //     const dirContents = readdirSync(sourceDir);
+    //     console.log('Directory Contents:', dirContents);
+    // 
+    //     const baseName = sourcePath.replace(/\.[^/.]+$/, ''); // Strip the extension
+    //     console.log(`Base Name: ${baseName}`);
+    //     
+    //     const potentialSubtitles = dirContents.filter((file) =>
+    //       file.startsWith(baseName) && file.endsWith('.srt')
+    //     );
+    // 
+    //     // Use the first match, if available
+    //     if (potentialSubtitles.length > 0) {
+    //       subtitlesPath = join(sourceDir, potentialSubtitles[0]);
+    //     }
+    //   } catch (err) {
+    //     console.error(`Failed to read directory: ${sourceDir}`, err);
+    //   }
+    // }
+    
+    // console.log(`Subtitles Path: ${subtitlesPath}`);
 
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 
@@ -122,7 +151,7 @@ export class JellyfinProgramStream extends ProgramStream {
           ? dayjs.duration(lineupItem.duration)
           : dayjs.duration(lineupItem.streamDuration ?? lineupItem.duration),
       watermark,
-      subtitles: subtitlesPath ? subtitlesPath : undefined, // Pass subtitle file if it exists
+      subtitles: null,
       realtime: this.context.realtime,
       extraInputHeaders: {},
       outputFormat: this.outputFormat,

@@ -339,6 +339,23 @@ export class JellyfinApiClient extends BaseApiClient<JellyfinApiClientOptions> {
     return `${opts.uri}/Items/${opts.itemKey}/Images/Primary`;
   }
 
+  async getDirectoryContents(path: string) {
+    try {
+      // Use the doTypeCheckedGet method with the correct endpoint and path param
+      const response = await this.doTypeCheckedGet(
+        '/Environment/DirectoryContents',
+        JellyfinLibraryItemsResponse,
+        { params: { path } }
+      );
+      return response;
+    } catch (error) {
+      LoggerFactory.root.error(error, 'Error fetching directory contents', {
+        className: JellyfinApiClient.name,
+      });
+      throw error;
+    }
+  }
+
   protected override preRequestValidate(
     req: AxiosRequestConfig,
   ): Maybe<QueryErrorResult> {

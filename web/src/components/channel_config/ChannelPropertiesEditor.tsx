@@ -227,6 +227,7 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
                 />
               </Box>
             </Box>
+              {/*
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }}>
                 Subtitles
@@ -253,6 +254,7 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
                 )}
               />
             </Box>
+            */}
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }}>
                 On-Demand
