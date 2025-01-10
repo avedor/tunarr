@@ -1,4 +1,4 @@
-import { dirname, join } from 'path';
+import { basename, dirname, join } from 'path';
 import { readdirSync } from 'fs';
 import { ChannelDB } from '@/db/ChannelDB.ts';
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
@@ -103,6 +103,7 @@ export class JellyfinProgramStream extends ProgramStream {
     }
 
     const sourcePath = stream.streamDetails.directFilePath;
+    let baseNameExt = basename(sourcePath)
     let subtitlesPath: Nullable<string> = null;
     
     if (sourcePath) {
@@ -110,24 +111,25 @@ export class JellyfinProgramStream extends ProgramStream {
       console.log(`Source Directory: ${sourceDir}`);
     
       try { 
-        const baseName = sourcePath.replace(/\.[^/.]+$/, ''); // Strip the extension
+        const baseName = baseNameExt.replace(/\.[^/.]+$/, ''); // Strip the extension
         console.log(`Base Name: ${baseName}`);
     
         // List all files in the directory
         const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
         const adjacentItems = await jellyfinClient.getDirectoryContents(sourceDir);
 
-        console.log(Array.isArray(adjacentItems));
         console.log(adjacentItems);
     
         // Filter for subtitles: match file names (without extensions) and look for .srt files
-        const potentialSubtitles = adjacentItems.filter((item) =>
-          item.Path.startsWith(baseName) && item.Path.endsWith('.srt')
+        const potentialSubtitles = adjacentItems.filter((fileName) =>
+          fileName.startsWith(baseName) && fileName.endsWith('.srt')
         );
+
+        console.log("Potential Subtitles:", potentialSubtitles);
     
         // Use the first match, if available
         if (potentialSubtitles.length > 0) {
-          subtitlesPath = join(sourceDir, potentialSubtitles[0].Path); // Use Path here
+          subtitlesPath = join(sourceDir, potentialSubtitles[0]); // Combine directory with file name
         }
       } catch (err) {
         console.error(`Failed to read directory: ${sourceDir}`, err);
