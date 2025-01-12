@@ -13,6 +13,7 @@ import { useSettings } from '../store/settings/selectors.ts';
 
 type VideoProps = {
   channelId: string;
+  subtitles?: string;
 };
 
 export default function Video({ channelId }: VideoProps) {
@@ -115,7 +116,15 @@ export default function Video({ channelId }: VideoProps) {
     return (
       <Box sx={{ mb: 2 }}>
         <Box sx={{ width: '100%' }}>
-          <video style={{ width: '100%' }} controls autoPlay ref={videoRef} />
+          <video style={{ width: '100%' }} controls autoPlay ref={videoRef}>
+            <track
+            src={`${backendUri}/stream/channels/${channelId}.vtt`}
+            kind="subtitles"
+            srcLang="en"
+            label="English"
+            default
+            />
+          </video>
         </Box>
         <Button
           variant="contained"

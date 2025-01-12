@@ -145,7 +145,7 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
-  subtitles?: string;
+  subtitles?: boolean;
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
@@ -206,7 +206,7 @@ export class FFMPEG implements IFFMPEG {
       `-threads`,
       '1',
       '-loglevel',
-      this.opts.logLevel,
+       this.opts.logLevel,
       '-user_agent',
       `Ffmpeg Tunarr/${getTunarrVersion()}`,
       `-fflags`,
@@ -225,8 +225,6 @@ export class FFMPEG implements IFFMPEG {
       `-i`,
       streamUrl,
     ];
-
-    console.log('FFmpeg Arguments:', ffmpegArgs.join(' '));
 
     // Workaround until new pipeline is in place...
     const scThreshold = this.transcodeConfig.videoFormat.includes('mpeg2')
@@ -343,7 +341,7 @@ export class FFMPEG implements IFFMPEG {
     startTime,
     duration,
     watermark: enableIcon,
-    subtitles,
+    subtitles = false,
     realtime = true,
     outputFormat,
     ptsOffset,
@@ -400,7 +398,7 @@ export class FFMPEG implements IFFMPEG {
       undefined,
       streamStats.duration!,
       /*watermark=*/ undefined,
-      /*subtitles=*/ undefined,
+      /*subtitles=*/ false,
       true,
       outputFormat,
       null,
@@ -424,7 +422,7 @@ export class FFMPEG implements IFFMPEG {
       undefined,
       duration,
       undefined,
-      undefined,
+      false,
       true,
       outputFormat,
       null,
@@ -437,8 +435,7 @@ export class FFMPEG implements IFFMPEG {
     startTime: Maybe<Duration>,
     duration: Duration,
     watermark: Maybe<Watermark>,
-    //subtitles: Maybe<Subtitles>,
-    subtitles: Maybe<string>,
+    subtitles: boolean,
     realtime: boolean,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
@@ -738,9 +735,12 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-    // if (subtitles?.enabled && !isNil(subtitles?.path)) {
-    if (!isNil(subtitles)) {
-      ffmpegArgs.push(`-i`, `${subtitles}`);
+    if (subtitles) {
+      console.log('Adding sub opts');
+      ffmpegArgs.push(
+        '-map',
+        '0:s:0',
+      );
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1125,7 +1125,7 @@ export class FFMPEG implements IFFMPEG {
       this.logger.info('ffmpeg preemptively killed');
       return;
     }
-
+    console.log(ffmpegArgs)
     return this.createProcess(ffmpegArgs, duration);
   }
 
@@ -1134,7 +1134,6 @@ export class FFMPEG implements IFFMPEG {
     streamDuration?: Duration,
   ): FfmpegTranscodeSession {
     const process = new FfmpegProcess(this.opts, this.ffmpegName, ffmpegArgs);
-
     // TODO: Do we need a more accurate measure of "streamEndTime" by passing in
     // the request start time? Or is this really inaccurate because we still have
     // a short amount of time before the stream is actually started...

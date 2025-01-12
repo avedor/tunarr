@@ -4,7 +4,6 @@ import { LoggerFactory } from '@/util/logging/LoggerFactory.ts';
 import { getTunarrVersion } from '@/util/version.js';
 import {
   JellyfinAuthenticationResult,
-  JellyfinDirItemsArrayResponse,
   JellyfinItem,
   JellyfinItemFields,
   JellyfinItemKind,
@@ -340,41 +339,6 @@ export class JellyfinApiClient extends BaseApiClient<JellyfinApiClientOptions> {
     return `${opts.uri}/Items/${opts.itemKey}/Images/Primary`;
   }
 
-  async getDirectoryContents(path: string) {
-    try {
-      const response = await this.doTypeCheckedGet(
-        '/Environment/DirectoryContents',
-        JellyfinDirItemsArrayResponse, // Expecting an array of JellyfinLibraryItem objects
-        {
-          params: {
-            path,
-            includeDirectories: true,
-            includeFiles: true,
-          },
-        }
-      );
- 
-      // Check if response contains the 'data' field and it is an array
-      if (response?.data && Array.isArray(response.data)) {
-        // If it's an array, extract only the 'Name' field
-        const names = response.data.map((item) => item.Name);
-        return names; // Return only the 'Name' values
-      } else {
-        // Handle the case where response is not in the expected format
-        LoggerFactory.root.error(
-          'Unexpected response format',
-          'Response does not contain a data array',
-          { className: JellyfinApiClient.name }
-        );
-        throw new Error('Unexpected response format, expected a data array');
-      }
-    } catch (error) {
-      LoggerFactory.root.error(error, 'Error fetching directory contents', {
-        className: JellyfinApiClient.name,
-      });
-      throw error;
-    }
-  }
 
   protected override preRequestValidate(
     req: AxiosRequestConfig,

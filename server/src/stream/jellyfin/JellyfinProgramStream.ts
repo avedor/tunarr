@@ -1,5 +1,3 @@
-import { basename, dirname, join } from 'path';
-import { readdirSync } from 'fs';
 import { ChannelDB } from '@/db/ChannelDB.ts';
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { isContentBackedLineupIteam } from '@/db/derived_types/StreamLineup.ts';
@@ -102,42 +100,26 @@ export class JellyfinProgramStream extends ProgramStream {
         : undefined;
     }
 
-    const sourcePath = stream.streamDetails.directFilePath;
-    let baseNameExt = basename(sourcePath)
-    let subtitlesPath: Nullable<string> = null;
-    
-    if (sourcePath) {
-      const sourceDir = dirname(sourcePath);
-      console.log(`Source Directory: ${sourceDir}`);
-    
-      try { 
-        const baseName = baseNameExt.replace(/\.[^/.]+$/, ''); // Strip the extension
-        console.log(`Base Name: ${baseName}`);
-    
-        // List all files in the directory
-        const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
-        const adjacentItems = await jellyfinClient.getDirectoryContents(sourceDir);
+    // set up server for api calls
+    const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
+    const serverPath = stream.streamDetails.serverPath
+    console.log(`Server Path: ${serverPath}`)
+    // get item details
+    const itemDetails = await jellyfinClient?.getItems(
+      null,
+      null,
+      null,
+      [],
+      null,
+      {ids: [serverPath]}
+    );
 
-        console.log(adjacentItems);
-    
-        // Filter for subtitles: match file names (without extensions) and look for .srt files
-        const potentialSubtitles = adjacentItems.filter((fileName) =>
-          fileName.startsWith(baseName) && fileName.endsWith('.srt')
-        );
+    let hasSubs = false
+    if (itemDetails?.data?.Items?.[0]?.HasSubtitles) {
+      hasSubs = true
+    };
+    console.log(`Has Subs? ${hasSubs}`);
 
-        console.log("Potential Subtitles:", potentialSubtitles);
-    
-        // Use the first match, if available
-        if (potentialSubtitles.length > 0) {
-          subtitlesPath = join(sourceDir, potentialSubtitles[0]); // Combine directory with file name
-        }
-      } catch (err) {
-        console.error(`Failed to read directory: ${sourceDir}`, err);
-      }
-    }
-    
-    console.log(`Subtitles Path: ${subtitlesPath}`);
-    
 
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 
@@ -150,7 +132,7 @@ export class JellyfinProgramStream extends ProgramStream {
           ? dayjs.duration(lineupItem.duration)
           : dayjs.duration(lineupItem.streamDuration ?? lineupItem.duration),
       watermark,
-      subtitles: null,
+      subtitles: hasSubs ?? false,
       realtime: this.context.realtime,
       extraInputHeaders: {},
       outputFormat: this.outputFormat,

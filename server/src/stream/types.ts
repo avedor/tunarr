@@ -17,13 +17,14 @@ export type StreamDetails = {
   bitrate?: number;
 
   // If defined, there is at least one video stream
-  videoDetails?: [VideoStreamDetails, ...VideoStreamDetails[]];
-  audioDetails?: [AudioStreamDetails, ...AudioStreamDetails[]];
+  videoDetails?:    [VideoStreamDetails, ...VideoStreamDetails[]];
+  audioDetails?:    [AudioStreamDetails, ...AudioStreamDetails[]];
 
   audioOnly?: boolean;
   placeholderImage?: string;
   serverPath?: string;
   directFilePath?: string;
+  // hasSubtitles?: boolean;
 };
 
 export type VideoStreamDetails = {
