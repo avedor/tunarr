@@ -150,7 +150,7 @@ export type StreamOptions = {
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
   ptsOffset?: number;
-  streamMode?: ChannelStreamMode;
+  streamMode: ChannelStreamMode;
 };
 
 export type StreamSessionOptions = StreamOptions & {
@@ -206,7 +206,7 @@ export class FFMPEG implements IFFMPEG {
       `-threads`,
       '1',
       '-loglevel',
-       this.opts.logLevel,
+      this.opts.logLevel,
       '-user_agent',
       `Ffmpeg Tunarr/${getTunarrVersion()}`,
       `-fflags`,
@@ -1134,6 +1134,7 @@ export class FFMPEG implements IFFMPEG {
     streamDuration?: Duration,
   ): FfmpegTranscodeSession {
     const process = new FfmpegProcess(this.opts, this.ffmpegName, ffmpegArgs);
+
     // TODO: Do we need a more accurate measure of "streamEndTime" by passing in
     // the request start time? Or is this really inaccurate because we still have
     // a short amount of time before the stream is actually started...

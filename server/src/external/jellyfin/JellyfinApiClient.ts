@@ -339,7 +339,6 @@ export class JellyfinApiClient extends BaseApiClient<JellyfinApiClientOptions> {
     return `${opts.uri}/Items/${opts.itemKey}/Images/Primary`;
   }
 
-
   protected override preRequestValidate(
     req: AxiosRequestConfig,
   ): Maybe<QueryErrorResult> {
