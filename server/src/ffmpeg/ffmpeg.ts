@@ -737,10 +737,7 @@ export class FFMPEG implements IFFMPEG {
 
     if (subtitles) {
       console.log('Adding sub opts');
-      ffmpegArgs.push(
-        '-map',
-        '0:s:0',
-      );
+      ffmpegArgs.push('-c:s', 'mov_text');
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1125,7 +1122,6 @@ export class FFMPEG implements IFFMPEG {
       this.logger.info('ffmpeg preemptively killed');
       return;
     }
-    console.log(ffmpegArgs)
     return this.createProcess(ffmpegArgs, duration);
   }
 

@@ -17,7 +17,6 @@ import { LoggerFactory } from '@/util/logging/LoggerFactory.js';
 import dayjs from 'dayjs';
 import { isNil, isNull, isUndefined } from 'lodash-es';
 import { JellyfinStreamDetails } from './JellyfinStreamDetails.js';
-import { MediaSourceApiFactory } from '@/external/MediaSourceApiFactory.ts';
 
 export class JellyfinProgramStream extends ProgramStream {
   protected logger = LoggerFactory.child({
@@ -100,27 +99,6 @@ export class JellyfinProgramStream extends ProgramStream {
         : undefined;
     }
 
-    // set up server for api calls
-    const jellyfinClient = await MediaSourceApiFactory().getJellyfinByName("JF");
-    const serverPath = stream.streamDetails.serverPath
-    console.log(`Server Path: ${serverPath}`)
-    // get item details
-    const itemDetails = await jellyfinClient?.getItems(
-      null,
-      null,
-      null,
-      [],
-      null,
-      {ids: [serverPath]}
-    );
-
-    let hasSubs = false
-    if (itemDetails?.data?.Items?.[0]?.HasSubtitles) {
-      hasSubs = true
-    };
-    console.log(`Has Subs? ${hasSubs}`);
-
-
     const start = dayjs.duration(lineupItem.startOffset ?? 0);
 
     const ffmpegOutStream = await this.ffmpeg.createStreamSession({
@@ -132,7 +110,6 @@ export class JellyfinProgramStream extends ProgramStream {
           ? dayjs.duration(lineupItem.duration)
           : dayjs.duration(lineupItem.streamDuration ?? lineupItem.duration),
       watermark,
-      subtitles: hasSubs ?? false,
       realtime: this.context.realtime,
       extraInputHeaders: {},
       outputFormat: this.outputFormat,
