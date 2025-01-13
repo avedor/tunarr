@@ -13,7 +13,7 @@ import { useSettings } from '../store/settings/selectors.ts';
 
 type VideoProps = {
   channelId: string;
-  subtitles?: string;
+  hasSubtitles?: boolean;
 };
 
 export default function Video({ channelId }: VideoProps) {

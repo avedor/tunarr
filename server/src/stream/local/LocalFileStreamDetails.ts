@@ -1,6 +1,6 @@
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { FfmpegInfo } from '@/ffmpeg/ffmpegInfo.ts';
-import { FfprobeAudioStream, FfprobeVideoStream } from '@/types/ffmpeg.ts';
+import { FfprobeAudioStream, FfprobeVideoStream, FfprobeSubtitleStream } from '@/types/ffmpeg.ts';
 import { Maybe, Nullable } from '@/types/util.ts';
 import dayjs from '@/util/dayjs.ts';
 import { fileExists } from '@/util/fsUtil.ts';
@@ -53,8 +53,8 @@ export class LocalFileStreamDetails {
           videoStream.field_order === 'interlaced'
             ? 'interlaced'
             : videoStream.field_order === 'progressive'
-              ? 'progressive'
-              : 'unknown',
+            ? 'progressive'
+            : 'unknown',
         width: videoStream.width,
         height: videoStream.height,
         framerate: videoStream.r_frame_rate ?? undefined,
@@ -90,14 +90,27 @@ export class LocalFileStreamDetails {
       },
     );
 
+    const subtitleStream = find(
+      probeResult.streams,
+      (stream): stream is FfprobeSubtitleStream => stream.codec_type === 'subtitle',
+    );
+
+    let hasSubtitles = false
+    if (subtitleStream) {
+      hasSubtitles = true
+    }
+
+
     return {
       streamDetails: {
         videoDetails: videoDetails ? [videoDetails] : undefined,
         audioDetails: isEmpty(audioStreamDetails)
           ? undefined
           : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
+        hasSubtitles: hasSubtitles,
         duration: dayjs.duration({ seconds: probeResult.format.duration }),
       },
+
       streamSource: this.path.startsWith('http')
         ? new HttpStreamSource(this.path)
         : new FileStreamSource(this.path),

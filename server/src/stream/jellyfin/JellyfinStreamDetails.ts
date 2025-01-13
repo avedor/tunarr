@@ -306,7 +306,6 @@ export class JellyfinStreamDetails {
         : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
       hasSubtitles: nullToUndefined(media?.HasSubtitles),
     };
-    console.log(`Has Subtitles? ${media?.HasSubtitles}`);
 
     if (audioOnly) {
       // TODO Use our proxy endpoint here
