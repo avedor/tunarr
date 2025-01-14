@@ -145,6 +145,7 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
+  subtitles?: boolean;
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
@@ -340,6 +341,7 @@ export class FFMPEG implements IFFMPEG {
     startTime,
     duration,
     watermark: enableIcon,
+    subtitles = false,
     realtime = true,
     outputFormat,
     ptsOffset,
@@ -350,8 +352,9 @@ export class FFMPEG implements IFFMPEG {
       streamDetails,
       startTime,
       duration,
-      realtime,
       enableIcon,
+      subtitles,
+      realtime,
       outputFormat,
       ptsOffset ?? null,
     );
@@ -394,8 +397,9 @@ export class FFMPEG implements IFFMPEG {
       streamStats,
       undefined,
       streamStats.duration!,
-      true,
       /*watermark=*/ undefined,
+      /*subtitles=*/ false,
+      true,
       outputFormat,
       null,
     );
@@ -417,8 +421,9 @@ export class FFMPEG implements IFFMPEG {
       streamStats,
       undefined,
       duration,
-      true,
       undefined,
+      false,
+      true,
       outputFormat,
       null,
     );
@@ -429,8 +434,9 @@ export class FFMPEG implements IFFMPEG {
     streamStats: Maybe<StreamDetails>,
     startTime: Maybe<Duration>,
     duration: Duration,
-    realtime: boolean,
     watermark: Maybe<Watermark>,
+    subtitles: boolean,
+    realtime: boolean,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
   ): Promise<Maybe<FfmpegTranscodeSession>> {
@@ -727,6 +733,11 @@ export class FFMPEG implements IFFMPEG {
       // HACK: We know these will be defined already if we get this far
       iW = iW!;
       iH = iH!;
+    }
+
+    if (subtitles) {
+      console.log('Adding sub opts');
+      ffmpegArgs.push('-c:s', 'mov_text');
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1111,7 +1122,6 @@ export class FFMPEG implements IFFMPEG {
       this.logger.info('ffmpeg preemptively killed');
       return;
     }
-
     return this.createProcess(ffmpegArgs, duration);
   }
 

@@ -58,6 +58,19 @@ export const FfprobeAudioStreamSchema = BaseFfprobeMediaStreamSchema.extend({
 
 export type FfprobeAudioStream = z.infer<typeof FfprobeAudioStreamSchema>;
 
+export const FfprobeSubtitleStreamSchema = BaseFfprobeMediaStreamSchema.extend({
+  codec_type: z.literal('subtitle'),
+  width: z.number().optional(),
+  height: z.number().optional(),
+  time_base: z.string().optional(),
+  start_pts: z.number().optional(),
+  r_frame_rate: z.string().optional(),
+  avg_frame_rate: z.string().optional(),
+  duration: z.string().optional(),
+});
+
+export type FfprobeSubtitleStream = z.infer<typeof FfprobeSubtitleStreamSchema>;
+
 function parsePossibleFractionToFloat(s: string) {
   if (s.includes('/')) {
     const [num, den] = split(s, '/', 2);
@@ -74,6 +87,7 @@ function parsePossibleFractionToFloat(s: string) {
 export const FfprobeMediaStreamSchema = z.discriminatedUnion('codec_type', [
   FfprobeVideoStreamSchema,
   FfprobeAudioStreamSchema,
+  FfprobeSubtitleStreamSchema,
 ]);
 
 export const FfprobeMediaFormatSchema = z.object({

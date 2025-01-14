@@ -24,6 +24,7 @@ export type StreamDetails = {
   placeholderImage?: StreamSource;
   serverPath?: string;
   directFilePath?: string;
+  hasSubtitles?: boolean;
 };
 
 export type VideoStreamDetails = {

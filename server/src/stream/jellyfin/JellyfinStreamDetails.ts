@@ -173,12 +173,15 @@ export class JellyfinStreamDetails {
       };
     } else {
       const path = details.serverPath ?? item.plexFilePath;
+      const subtitleParam = details.hasSubtitles
+        ? '&subtitleStreamIndex=0'
+        : '';
       if (isNonEmptyString(path)) {
         streamSource = new HttpStreamSource(
           `${trimEnd(this.server.uri, '/')}/Videos/${trimStart(
             path,
             '/',
-          )}/stream?static=true`,
+          )}/stream?static=true${subtitleParam}`,
           {
             // TODO: Use the real authorization string
             'X-Emby-Token': this.server.accessToken,
@@ -301,6 +304,7 @@ export class JellyfinStreamDetails {
       audioDetails: isEmpty(audioStreamDetails)
         ? undefined
         : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
+      hasSubtitles: nullToUndefined(media?.HasSubtitles),
     };
 
     if (audioOnly) {
