@@ -162,6 +162,7 @@ function updateRequestToChannel(updateReq: SaveChannelRequest): ChannelUpdate {
     guideFlexTitle: updateReq.guideFlexTitle,
     transcodeConfigId: updateReq.transcodeConfigId,
     streamMode: updateReq.streamMode,
+    subtitlesEnabled: updateReq.subtitlesEnabled,
   } satisfies ChannelUpdate;
 }
 
@@ -198,6 +199,7 @@ function createRequestToChannel(saveReq: SaveChannelRequest): NewChannel {
     fillerRepeatCooldown: saveReq.fillerRepeatCooldown,
     guideFlexTitle: saveReq.guideFlexTitle,
     streamMode: saveReq.streamMode,
+    subtitlesEnabled: saveReq.subtitlesEnabled,
     transcodeConfigId: saveReq.transcodeConfigId,
   } satisfies NewChannel;
 }

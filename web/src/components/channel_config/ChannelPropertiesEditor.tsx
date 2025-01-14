@@ -227,7 +227,6 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
                 />
               </Box>
             </Box>
-              {/*
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }}>
                 Subtitles
@@ -240,7 +239,7 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
               </Typography>
               <Controller
                 control={control}
-                name="subtitles.enabled"
+                name="subtitlesEnabled"
                 render={({ field }) => (
                   <FormControlLabel
                     control={
@@ -254,7 +253,6 @@ export function ChannelPropertiesEditor({ isNew }: Props) {
                 )}
               />
             </Box>
-            */}
             <Box>
               <Typography variant="h5" sx={{ mb: 1 }}>
                 On-Demand

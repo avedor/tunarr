@@ -53,6 +53,7 @@ export default {
       .addColumn('transcode_config_id', 'text', (col) =>
         col.references('transcode_config.uuid'),
       )
+      .addColumn('subtitles_enabled', 'boolean', (col) => col.notNull().defaultTo(false))
       .execute();
 
     await db
@@ -76,6 +77,7 @@ export default {
         'transcoding',
         'guideFlexTitle',
         'streamMode',
+        'subtitlesEnabled',
       ])
       .expression(
         db
@@ -99,6 +101,7 @@ export default {
             'transcoding',
             'guideFlexTitle',
             'streamMode',
+            'subtitlesEnabled',
           ]),
       )
       .execute();
@@ -190,6 +193,7 @@ export default {
       .addColumn('transcode_config_id', 'text', (col) =>
         col.references('transcode_config.uuid'),
       )
+      .addColumn('subtitles_enabled', 'boolean', (col) => col.notNull().defaultTo(false))
       .execute();
 
     await db
@@ -213,6 +217,7 @@ export default {
         'transcoding',
         'guideFlexTitle',
         'streamMode',
+        'subtitlesEnabled',
       ])
       .expression(
         db
@@ -236,6 +241,7 @@ export default {
             'transcoding',
             'guideFlexTitle',
             'streamMode',
+            'subtitlesEnabled',
           ]),
       )
       .execute();

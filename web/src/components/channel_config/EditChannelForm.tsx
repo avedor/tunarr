@@ -71,9 +71,7 @@ function getDefaultFormValues(channel: Channel): SaveChannelRequest {
         },
       ],
     },
-    // subtitles: {
-    //   enabled: channel.subtitles?.enabled ?? false,
-    // },
+    subtitlesEnabled: channel.subtitlesEnabled ?? false,
     onDemand: {
       enabled: channel.onDemand.enabled,
     },
