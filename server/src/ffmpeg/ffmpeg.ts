@@ -735,7 +735,7 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-    if (subtitles) {
+    if (subtitles && this.channel.subtitlesEnabled) {
       console.log('Adding sub opts');
       ffmpegArgs.push('-c:s', 'mov_text');
     }

@@ -23,7 +23,7 @@ export default function ChannelWatchPage() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           "{channel.name}" Live
         </Typography>
-        <Video channelId={channel.id} hasSubtitles={channel.subtitles}/>
+        <Video channelId={channel.id} hasSubtitles={channel.subtitlesEnabled} />
         <TvGuide channelId={channel.id} start={start} end={end} />
       </div>
     )

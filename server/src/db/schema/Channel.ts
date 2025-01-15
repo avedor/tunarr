@@ -31,7 +31,7 @@ export interface ChannelTable extends WithUuid, WithCreatedAt, WithUpdatedAt {
   startTime: number;
   stealth: ColumnType<number, number | undefined>;
   streamMode: ColumnType<ChannelStreamMode, ChannelStreamMode | undefined>;
-  subtitlesEnabled: boolean,
+  subtitlesEnabled: Generated<number>;
   transcoding: JSONColumnType<ChannelTranscodingSettings | null, string | null>;
   transcodeConfigId: string;
   watermark: JSONColumnType<ChannelWatermark | null, string | null>;

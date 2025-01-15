@@ -31,6 +31,7 @@ export const DefaultChannel: MarkOptional<
     picture: '',
     soundtrack: '',
   },
+  subtitlesEnabled: false,
   onDemand: {
     enabled: false,
   },
