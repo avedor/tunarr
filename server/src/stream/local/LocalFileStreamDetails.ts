@@ -1,6 +1,10 @@
 import { SettingsDB, getSettings } from '@/db/SettingsDB.ts';
 import { FfmpegInfo } from '@/ffmpeg/ffmpegInfo.ts';
-import { FfprobeAudioStream, FfprobeVideoStream, FfprobeSubtitleStream } from '@/types/ffmpeg.ts';
+import {
+  FfprobeAudioStream,
+  FfprobeVideoStream,
+  FfprobeSubtitleStream,
+} from '@/types/ffmpeg.ts';
 import { Maybe, Nullable } from '@/types/util.ts';
 import dayjs from '@/util/dayjs.ts';
 import { fileExists } from '@/util/fsUtil.ts';
@@ -13,6 +17,7 @@ import {
   FileStreamSource,
   HttpStreamSource,
   ProgramStreamResult,
+  SubtitleStreamDetails,
   VideoStreamDetails,
 } from '../types.ts';
 
@@ -53,8 +58,8 @@ export class LocalFileStreamDetails {
           videoStream.field_order === 'interlaced'
             ? 'interlaced'
             : videoStream.field_order === 'progressive'
-            ? 'progressive'
-            : 'unknown',
+              ? 'progressive'
+              : 'unknown',
         width: videoStream.width,
         height: videoStream.height,
         framerate: videoStream.r_frame_rate ?? undefined,
@@ -90,16 +95,19 @@ export class LocalFileStreamDetails {
       },
     );
 
-    const subtitleStream = find(
-      probeResult.streams,
-      (stream): stream is FfprobeSubtitleStream => stream.codec_type === 'subtitle',
+    const subtitleStreamDetails = map(
+      filter(
+        probeResult.streams,
+        (stream): stream is FfprobeSubtitleStream =>
+          stream.codec_type === 'subtitle',
+      ),
+      (subtitleStream) => {
+        return {
+          index: subtitleStream.index.toFixed(),
+          language: subtitleStream.tags?.['language'],
+        } satisfies SubtitleStreamDetails;
+      },
     );
-
-    let hasSubtitles = false
-    if (subtitleStream) {
-      hasSubtitles = true
-    }
-
 
     return {
       streamDetails: {
@@ -107,7 +115,9 @@ export class LocalFileStreamDetails {
         audioDetails: isEmpty(audioStreamDetails)
           ? undefined
           : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
-        hasSubtitles: hasSubtitles,
+        subtitleDetails: isEmpty(subtitleStreamDetails)
+          ? undefined
+          : (subtitleStreamDetails as NonEmptyArray<SubtitleStreamDetails>),
         duration: dayjs.duration({ seconds: probeResult.format.duration }),
       },
 

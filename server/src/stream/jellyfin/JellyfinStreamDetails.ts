@@ -42,6 +42,7 @@ import {
   ProgramStreamResult,
   StreamDetails,
   StreamSource,
+  SubtitleStreamDetails,
   VideoStreamDetails,
 } from '../types.js';
 
@@ -173,7 +174,7 @@ export class JellyfinStreamDetails {
       };
     } else {
       const path = details.serverPath ?? item.plexFilePath;
-      const subtitleParam = details.hasSubtitles
+      const subtitleParam = details.subtitleDetails
         ? '&subtitleStreamIndex=0'
         : '';
       if (isNonEmptyString(path)) {
@@ -287,6 +288,29 @@ export class JellyfinStreamDetails {
       },
     );
 
+    const subtitlesStreamDetails = map(
+      sortBy(
+        filter(
+          firstMediaSource?.MediaStreams,
+          (stream) => stream.Type === 'Subtitle',
+        ),
+      ),
+      (subtitleStream) => {
+        return {
+          index:
+            ifDefined(subtitleStream.Index, (streamIndex) => {
+              const index = streamIndex - externalStreamCount;
+              if (index >= 0) {
+                return index.toString();
+              }
+              return;
+            }) ?? undefined,
+          language: nullToUndefined(subtitleStream.Language),
+          title: nullToUndefined(subtitleStream.Title),
+        };
+      },
+    );
+
     if (!videoStreamDetails && isEmpty(audioStreamDetails)) {
       this.logger.warn(
         'Could not find a video nor audio stream for Plex item %s',
@@ -304,7 +328,9 @@ export class JellyfinStreamDetails {
       audioDetails: isEmpty(audioStreamDetails)
         ? undefined
         : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
-      hasSubtitles: nullToUndefined(media?.HasSubtitles),
+      subtitleDetails: isEmpty(subtitlesStreamDetails)
+        ? undefined
+        : (subtitlesStreamDetails as NonEmptyArray<SubtitleStreamDetails>),
     };
 
     if (audioOnly) {

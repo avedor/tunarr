@@ -19,12 +19,12 @@ export type StreamDetails = {
   // If defined, there is at least one video stream
   videoDetails?: [VideoStreamDetails, ...VideoStreamDetails[]];
   audioDetails?: [AudioStreamDetails, ...AudioStreamDetails[]];
+  subtitleDetails?: [SubtitleStreamDetails, ...SubtitleStreamDetails[]];
 
   audioOnly?: boolean;
   placeholderImage?: string;
   serverPath?: string;
   directFilePath?: string;
-  hasSubtitles?: boolean;
 };
 
 export type VideoStreamDetails = {
@@ -55,6 +55,14 @@ export type AudioStreamDetails = {
   title?: string;
   language?: string;
   forced?: boolean;
+};
+
+export type SubtitleStreamDetails = {
+  index?: string;
+  default?: boolean;
+  selected?: boolean;
+  title?: string;
+  language?: string;
 };
 
 // TODO: Move me
