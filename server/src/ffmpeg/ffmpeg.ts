@@ -455,6 +455,7 @@ export class FFMPEG implements IFFMPEG {
       find(streamStats?.audioDetails, { selected: true }) ??
       find(streamStats?.audioDetails, { default: true }) ??
       first(streamStats?.audioDetails);
+    const subtitleStream = first(streamStats?.subtitleDetails)
 
     // Initialize like this because we're not checking whether or not
     // the input is hardware decodeable, yet.
@@ -735,9 +736,13 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-    if (subtitles && this.channel.subtitlesEnabled) {
+//    if (subtitles && this.channel.subtitlesEnabled) {
+    console.log(subtitles)
+    console.log(subtitleStream)
+    console.log(this.channel.subtitlesEnabled)
+    if (this.channel.subtitlesEnabled) {
       console.log('Adding sub opts');
-      ffmpegArgs.push('-c:s', 'mov_text');
+      ffmpegArgs.push('-map', '0:s:2');
     }
 
     if (doOverlay && !isNil(watermark?.url)) {

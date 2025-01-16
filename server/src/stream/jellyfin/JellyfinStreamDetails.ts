@@ -174,15 +174,13 @@ export class JellyfinStreamDetails {
       };
     } else {
       const path = details.serverPath ?? item.plexFilePath;
-      const subtitleParam = details.subtitleDetails
-        ? '&subtitleStreamIndex=0'
-        : '';
+
       if (isNonEmptyString(path)) {
         streamSource = new HttpStreamSource(
           `${trimEnd(this.server.uri, '/')}/Videos/${trimStart(
             path,
             '/',
-          )}/stream?static=true${subtitleParam}`,
+          )}/stream?static=true`,
           {
             // TODO: Use the real authorization string
             'X-Emby-Token': this.server.accessToken,
@@ -288,28 +286,17 @@ export class JellyfinStreamDetails {
       },
     );
 
-    const subtitlesStreamDetails = map(
-      sortBy(
-        filter(
-          firstMediaSource?.MediaStreams,
-          (stream) => stream.Type === 'Subtitle',
-        ),
-      ),
-      (subtitleStream) => {
-        return {
-          index:
-            ifDefined(subtitleStream.Index, (streamIndex) => {
-              const index = streamIndex - externalStreamCount;
-              if (index >= 0) {
-                return index.toString();
-              }
-              return;
-            }) ?? undefined,
-          language: nullToUndefined(subtitleStream.Language),
-          title: nullToUndefined(subtitleStream.Title),
-        };
-      },
+    const subtitleStream = find(
+      firstMediaSource?.MediaStreams,
+      (stream) => stream.Type === 'Subtitle',
     );
+    let subtitleStreamDetails: Maybe<SubtitleStreamDetails>;
+    if (isDefined(subtitleStream)) {
+      subtitleStreamDetails = {
+        language: subtitleStream.Language ?? undefined,
+        title: subtitleStream.Title ?? undefined,
+      }
+    }
 
     if (!videoStreamDetails && isEmpty(audioStreamDetails)) {
       this.logger.warn(
@@ -328,9 +315,9 @@ export class JellyfinStreamDetails {
       audioDetails: isEmpty(audioStreamDetails)
         ? undefined
         : (audioStreamDetails as NonEmptyArray<AudioStreamDetails>),
-      subtitleDetails: isEmpty(subtitlesStreamDetails)
+      subtitleDetails: isEmpty(subtitleStreamDetails)
         ? undefined
-        : (subtitlesStreamDetails as NonEmptyArray<SubtitleStreamDetails>),
+        : (subtitleStreamDetails as NonEmptyArray<SubtitleStreamDetails>),
     };
 
     if (audioOnly) {

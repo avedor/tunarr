@@ -60,7 +60,6 @@ export type AudioStreamDetails = {
 export type SubtitleStreamDetails = {
   index?: string;
   default?: boolean;
-  selected?: boolean;
   title?: string;
   language?: string;
 };
