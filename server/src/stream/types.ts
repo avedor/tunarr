@@ -62,7 +62,8 @@ export type SubtitleStreamDetails = {
   default?: boolean;
   title?: string;
   language?: string;
-};
+  codec?: string
+}[];
 
 // TODO: Move me
 export function getPixelFormatForStream(details: StreamDetails) {

@@ -286,17 +286,19 @@ export class JellyfinStreamDetails {
       },
     );
 
-    const subtitleStream = find(
-      firstMediaSource?.MediaStreams,
-      (stream) => stream.Type === 'Subtitle',
+    const subtitleStreams = media?.MediaSources?.flatMap((mediaSource) =>
+      mediaSource?.MediaStreams?.filter((stream) => stream.Type === 'Subtitle')
     );
-    let subtitleStreamDetails: Maybe<SubtitleStreamDetails>;
-    if (isDefined(subtitleStream)) {
-      subtitleStreamDetails = {
-        language: subtitleStream.Language ?? undefined,
-        title: subtitleStream.Title ?? undefined,
-      }
-    }
+    
+    const subtitleStreamDetails: SubtitleStreamDetails = subtitleStreams?.map((subtitleStream) => ({
+      language: subtitleStream?.Language ?? undefined,
+      title: subtitleStream?.DisplayTitle ?? undefined,
+      codec: subtitleStream?.Codec ?? undefined,
+      default: subtitleStream?.IsDefault ?? false,
+    })) ?? [];
+    
+
+    console.log(`subtitle streams: ${JSON.stringify(subtitleStreams, null, 2)}`);
 
     if (!videoStreamDetails && isEmpty(audioStreamDetails)) {
       this.logger.warn(
@@ -344,6 +346,7 @@ export class JellyfinStreamDetails {
     }
 
     streamDetails.audioOnly = audioOnly;
+    console.log(`stream details: ${JSON.stringify(streamDetails, null, 2)}`)
 
     return streamDetails;
   }

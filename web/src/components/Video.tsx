@@ -101,6 +101,8 @@ export default function Video({ channelId }: VideoProps) {
           HLS not supported in this browser!
         </Alert>
       );
+    } else {
+      console.log(hls);
     }
 
     if (!isNil(ffmpegSettings) && ffmpegSettings.audioEncoder === 'ac3') {

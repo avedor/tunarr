@@ -145,7 +145,6 @@ export type StreamOptions = {
   startTime: Duration;
   duration: Duration;
   watermark?: Watermark;
-  subtitles?: boolean;
   realtime?: boolean; // = true,
   extraInputHeaders?: Record<string, string>;
   outputFormat: OutputFormat;
@@ -341,7 +340,6 @@ export class FFMPEG implements IFFMPEG {
     startTime,
     duration,
     watermark: enableIcon,
-    subtitles = false,
     realtime = true,
     outputFormat,
     ptsOffset,
@@ -353,7 +351,6 @@ export class FFMPEG implements IFFMPEG {
       startTime,
       duration,
       enableIcon,
-      subtitles,
       realtime,
       outputFormat,
       ptsOffset ?? null,
@@ -398,7 +395,6 @@ export class FFMPEG implements IFFMPEG {
       undefined,
       streamStats.duration!,
       /*watermark=*/ undefined,
-      /*subtitles=*/ false,
       true,
       outputFormat,
       null,
@@ -422,7 +418,6 @@ export class FFMPEG implements IFFMPEG {
       undefined,
       duration,
       undefined,
-      false,
       true,
       outputFormat,
       null,
@@ -435,7 +430,6 @@ export class FFMPEG implements IFFMPEG {
     startTime: Maybe<Duration>,
     duration: Duration,
     watermark: Maybe<Watermark>,
-    subtitles: boolean,
     realtime: boolean,
     outputFormat: OutputFormat,
     ptsOffset: Nullable<number>,
@@ -455,7 +449,10 @@ export class FFMPEG implements IFFMPEG {
       find(streamStats?.audioDetails, { selected: true }) ??
       find(streamStats?.audioDetails, { default: true }) ??
       first(streamStats?.audioDetails);
-    const subtitleStream = first(streamStats?.subtitleDetails)
+//    const subtitleStream =
+//      find(streamStats?.subtitleDetails, { selected: true }) ??
+//      find(streamStats?.subtitleDetails, { default: true }) ??
+//      first(streamStats?.subtitleDetails);
 
     // Initialize like this because we're not checking whether or not
     // the input is hardware decodeable, yet.
@@ -736,13 +733,11 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-//    if (subtitles && this.channel.subtitlesEnabled) {
-    console.log(subtitles)
-    console.log(subtitleStream)
-    console.log(this.channel.subtitlesEnabled)
+//    console.log(`subtitle stream: ${JSON.stringify(subtitleStream, null, 2)}`);
+    console.log(`subtitles enabled? ${this.channel.subtitlesEnabled}`)
     if (this.channel.subtitlesEnabled) {
       console.log('Adding sub opts');
-      ffmpegArgs.push('-map', '0:s:2');
+      ffmpegArgs.push('-map', '0:s:0', '-c:s', 'webvtt');
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1135,7 +1130,7 @@ export class FFMPEG implements IFFMPEG {
     streamDuration?: Duration,
   ): FfmpegTranscodeSession {
     const process = new FfmpegProcess(this.opts, this.ffmpegName, ffmpegArgs);
-
+    console.log(process);
     // TODO: Do we need a more accurate measure of "streamEndTime" by passing in
     // the request start time? Or is this really inaccurate because we still have
     // a short amount of time before the stream is actually started...
