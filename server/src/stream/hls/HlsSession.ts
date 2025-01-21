@@ -230,6 +230,7 @@ export class HlsSession extends BaseHlsSession<HlsSessionOptions> {
       HlsOutputFormat({
         hlsDeleteThreshold: 3,
         streamNameFormat: 'stream.m3u8',
+        subtitleNameFormat: 'stream_vtt.m3u8',
         segmentNameFormat: 'data%06d.ts',
         streamBasePath: `stream_${this.channel.uuid}`,
         streamBaseUrl: `/stream/channels/${this.channel.uuid}/${this.sessionType}/`,

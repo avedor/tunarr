@@ -65,6 +65,7 @@ export type HlsOptions = {
   streamBaseUrl: string;
   segmentNameFormat: string;
   streamNameFormat: string;
+  subtitleNameFormat: string;
   deleteThreshold: Nullable<number>;
   appendSegments: boolean;
 };
@@ -93,6 +94,7 @@ export const defaultHlsOptions: DeepRequired<HlsOptions> = {
   streamBasePath: 'stream_%v',
   segmentNameFormat: 'data%05d.ts',
   streamNameFormat: 'stream.m3u8',
+  subtitleNameFormat: 'stream_vtt.m3u8',
   streamBaseUrl: 'hls/',
   deleteThreshold: 3,
   appendSegments: false,
@@ -737,7 +739,7 @@ export class FFMPEG implements IFFMPEG {
     console.log(`subtitles enabled? ${this.channel.subtitlesEnabled}`)
     if (this.channel.subtitlesEnabled) {
       console.log('Adding sub opts');
-      ffmpegArgs.push('-map', '0:s:0', '-c:s', 'webvtt');
+      ffmpegArgs.push('-map', '0:s:0', '-c:s', 'webvtt', '-f', 'stream_vtt.m3u8');
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1194,6 +1196,7 @@ export class FFMPEG implements IFFMPEG {
       '-master_pl_name',
       'master.m3u8',
       path.join('streams', hlsOpts.streamBasePath, hlsOpts.streamNameFormat),
+      path.join('streams', hlsOpts.streamBasePath, hlsOpts.subtitleNameFormat),
     ];
   }
 
