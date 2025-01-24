@@ -739,7 +739,7 @@ export class FFMPEG implements IFFMPEG {
     if (this.channel.subtitlesEnabled && subtitleStream) {
       console.log('Adding sub opts');
       console.log(subtitleStream)
-      ffmpegArgs.push('-map', `0:${subtitleStream.index}`, '-c:s', 'webvtt')
+      ffmpegArgs.push('-map', `0:${subtitleStream.index}`, '-c:s', 'webvtt', '-var_stream_map', `v:0,a:0,s:0,name:subs`)
     }
 
     if (doOverlay && !isNil(watermark?.url)) {

@@ -76,6 +76,14 @@ export default function Video({ channelId }: VideoProps) {
       setLoadedStream(true);
       hls.loadSource(`${backendUri}/stream/channels/${channelId}.m3u8`);
       hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, function (_, data) {
+        console.log(data)
+        // console.log('Available subtitle tracks:', data.subtitles);
+        // if (data.subtitles.length > 0) {
+        //   hls.subtitleTrack = 0; // Enable the first subtitle track
+        // }
+      });
     }
   }, [
     autoPlayEnabled,
