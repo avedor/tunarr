@@ -48,44 +48,39 @@ export class M3uService {
     if (!isError(cachedM3U) && isDefined(cachedM3U)) {
       return cachedM3U;
     }
-  
+
     const channels = sortBy(await this.#channelDB.getAllChannels(), 'number');
     const tvg = `{{host}}/api/xmltv.xml`;
-  
+
     let data = `#EXTM3U url-tvg="${tvg}" x-tvg-url="${tvg}"\n`;
-  
+
     for (const channel of channels) {
       if (channel.stealth) {
         continue;
       }
-  
+
       const channelId = getChannelId(channel.number);
       data += `#EXTINF:-1 tvg-id="${channelId}" channel-id="${channelId}" CUID="${channelId}" tvg-chno="${channel.number}" tvg-name="${channel.name}" tvg-logo="${
         isNonEmptyString(channel.icon?.path)
           ? channel.icon.path
           : '{{host}}/images/tunarr.png'
       }" group-title="${channel.groupTitle}",${channel.name}\n`;
-  
+
       // Video Stream reference
       data += `{{host}}/stream/channels/${channel.uuid}.ts\n`;
-  
-      // Add Subtitle reference (if available)
-      if (channel.subtitlesEnabled) {
-        data += `#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",LANGUAGE="eng",NAME="English",DEFAULT=YES,AUTOSELECT=YES,URI="{{host}}/subtitles/${channel.uuid}_subtitle_vtt.m3u8"\n`;
-      }
     }
-  
+
     if (channels.length === 0) {
       data += `#EXTINF:0 tvg-id="1" tvg-chno="1" tvg-name="tunarr" tvg-logo="{{host}}/images/tunarr.png" group-title="tunarr",tunarr\n`;
       data += `{{host}}/setup\n`;
     }
-  
+
     try {
       await this.#fileCacheService.setCache(M3uService.cacheKey, data);
     } catch (err) {
       this.#logger.error(err, 'Unable to set file cache for channels.m3u');
     }
-  
+
     return data;
   }
 

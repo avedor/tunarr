@@ -166,6 +166,11 @@ export class HlsPlaylistMutator {
       '#EXT-X-INDEPENDENT-SEGMENTS',
     ];
 
+    // Add Subtitle reference (if available)
+    // if (channel.subtitlesEnabled) {
+    //   lines.push()`#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",LANGUAGE="eng",NAME="English",DEFAULT=YES,AUTOSELECT=YES,URI="{{host}}/subtitles/${channel.uuid}/subtitle_vtt.m3u8")`;
+    // }
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       switch (item.type) {

@@ -65,6 +65,7 @@ export type HlsOptions = {
   streamBaseUrl: string;
   segmentNameFormat: string;
   streamNameFormat: string;
+  subtitleNameFormat: string;
   deleteThreshold: Nullable<number>;
   appendSegments: boolean;
 };
@@ -94,6 +95,7 @@ export const defaultHlsOptions: DeepRequired<HlsOptions> = {
   segmentNameFormat: 'data%05d.ts',
   streamNameFormat: 'stream.m3u8',
   streamBaseUrl: 'hls/',
+  subtitleNameFormat: 'stream_vtt.m3u8',
   deleteThreshold: 3,
   appendSegments: false,
 };
@@ -1194,6 +1196,7 @@ export class FFMPEG implements IFFMPEG {
       '-master_pl_name',
       'master.m3u8',
       path.join('streams', hlsOpts.streamBasePath, hlsOpts.streamNameFormat),
+      path.join('streams', hlsOpts.streamBasePath, hlsOpts.subtitleNameFormat),
     ];
   }
 
