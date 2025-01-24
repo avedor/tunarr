@@ -286,19 +286,36 @@ export class JellyfinStreamDetails {
       },
     );
 
-    const subtitleStreams = media?.MediaSources?.flatMap((mediaSource) =>
-      mediaSource?.MediaStreams?.filter((stream) => stream.Type === 'Subtitle')
+    const subtitleStreamDetails = map(
+      sortBy(
+        filter(
+          firstMediaSource?.MediaStreams,
+          (stream) => (
+            stream.Type === 'Subtitle' && 
+            (stream.Codec === 'ass' ||
+             stream.Codec === 'srt' ||
+             stream.Codec === 'vtt'
+            )),
+        ),
+        (stream) => [stream.Index ?? 0, !stream.IsDefault],
+      ),
+      (subtitleStream) => {
+        return {
+          language: nullToUndefined(subtitleStream.Language),
+          title: nullToUndefined(subtitleStream.DisplayTitle),
+          codec: nullToUndefined(subtitleStream.Codec),
+          default: nullToUndefined(subtitleStream.IsDefault),
+          index:
+            ifDefined(subtitleStream.Index, (streamIndex) => {
+              const index = streamIndex - externalStreamCount;
+              if (index >= 0) {
+                return index.toString();
+              }
+              return;
+            }) ?? undefined,
+        } satisfies SubtitleStreamDetails;
+      },
     );
-    
-    const subtitleStreamDetails: SubtitleStreamDetails = subtitleStreams?.map((subtitleStream) => ({
-      language: subtitleStream?.Language ?? undefined,
-      title: subtitleStream?.DisplayTitle ?? undefined,
-      codec: subtitleStream?.Codec ?? undefined,
-      default: subtitleStream?.IsDefault ?? false,
-    })) ?? [];
-    
-
-    console.log(`subtitle streams: ${JSON.stringify(subtitleStreams, null, 2)}`);
 
     if (!videoStreamDetails && isEmpty(audioStreamDetails)) {
       this.logger.warn(
@@ -346,7 +363,6 @@ export class JellyfinStreamDetails {
     }
 
     streamDetails.audioOnly = audioOnly;
-    console.log(`stream details: ${JSON.stringify(streamDetails, null, 2)}`)
 
     return streamDetails;
   }

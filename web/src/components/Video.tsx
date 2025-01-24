@@ -118,15 +118,7 @@ export default function Video({ channelId }: VideoProps) {
     return (
       <Box sx={{ mb: 2 }}>
         <Box sx={{ width: '100%' }}>
-          <video style={{ width: '100%' }} controls autoPlay ref={videoRef}>
-            <track
-            src={`${backendUri}/stream/channels/${channelId}.vtt`}
-            kind="subtitles"
-            srcLang="en"
-            label="English"
-            default
-            />
-          </video>
+          <video style={{ width: '100%' }} controls autoPlay ref={videoRef} />
         </Box>
         <Button
           variant="contained"

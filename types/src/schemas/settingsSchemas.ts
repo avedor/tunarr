@@ -81,7 +81,7 @@ export const FfmpegSettingsSchema = z.object({
   concatMuxDelay: z.number().default(0),
   enableLogging: z.boolean().default(false),
   enableFileLogging: z.boolean().default(false),
-  logLevel: z.enum(FfmpegLogLevels).optional().default('warning'),
+  logLevel: z.enum(FfmpegLogLevels).optional().default('trace'),
   // DEPRECATED
   enableTranscoding: z.boolean().default(true).describe('DEPRECATED'),
   audioVolumePercent: z.number().default(100),

@@ -65,7 +65,6 @@ export type HlsOptions = {
   streamBaseUrl: string;
   segmentNameFormat: string;
   streamNameFormat: string;
-  subtitleNameFormat: string;
   deleteThreshold: Nullable<number>;
   appendSegments: boolean;
 };
@@ -94,7 +93,6 @@ export const defaultHlsOptions: DeepRequired<HlsOptions> = {
   streamBasePath: 'stream_%v',
   segmentNameFormat: 'data%05d.ts',
   streamNameFormat: 'stream.m3u8',
-  subtitleNameFormat: 'stream_vtt.m3u8',
   streamBaseUrl: 'hls/',
   deleteThreshold: 3,
   appendSegments: false,
@@ -451,10 +449,11 @@ export class FFMPEG implements IFFMPEG {
       find(streamStats?.audioDetails, { selected: true }) ??
       find(streamStats?.audioDetails, { default: true }) ??
       first(streamStats?.audioDetails);
-//    const subtitleStream =
-//      find(streamStats?.subtitleDetails, { selected: true }) ??
-//      find(streamStats?.subtitleDetails, { default: true }) ??
-//      first(streamStats?.subtitleDetails);
+    const subtitleStream = 
+      find(streamStats?.subtitleDetails, { selected: true }) ??
+      find(streamStats?.subtitleDetails, { default: true }) ??
+      first(streamStats?.subtitleDetails) ??
+      undefined;
 
     // Initialize like this because we're not checking whether or not
     // the input is hardware decodeable, yet.
@@ -735,11 +734,10 @@ export class FFMPEG implements IFFMPEG {
       iH = iH!;
     }
 
-//    console.log(`subtitle stream: ${JSON.stringify(subtitleStream, null, 2)}`);
-    console.log(`subtitles enabled? ${this.channel.subtitlesEnabled}`)
-    if (this.channel.subtitlesEnabled) {
+    if (this.channel.subtitlesEnabled && subtitleStream) {
       console.log('Adding sub opts');
-      ffmpegArgs.push('-map', '0:s:0', '-c:s', 'webvtt', '-f', 'stream_vtt.m3u8');
+      console.log(subtitleStream)
+      ffmpegArgs.push('-map', `0:${subtitleStream.index}`, '-c:s', 'webvtt')
     }
 
     if (doOverlay && !isNil(watermark?.url)) {
@@ -1196,7 +1194,6 @@ export class FFMPEG implements IFFMPEG {
       '-master_pl_name',
       'master.m3u8',
       path.join('streams', hlsOpts.streamBasePath, hlsOpts.streamNameFormat),
-      path.join('streams', hlsOpts.streamBasePath, hlsOpts.subtitleNameFormat),
     ];
   }
 
