@@ -278,11 +278,16 @@ export abstract class FileSystemScanner {
       );
       const needsRefresh =
         force ||
+        !existingOfType?.cachePath ||
         !existingOfType?.updatedAt ||
         dayjs
           .duration(dayjs(stat.mtime).diff(existingOfType.updatedAt))
           .asSeconds() > 1;
       if (!needsRefresh) {
+        this.logger.trace(
+          'Artwork up to date; skipping cache refresh (%s)',
+          artworkFilePath,
+        );
         return;
       }
 
